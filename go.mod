@@ -1,4 +1,4 @@
-module gitlab.cs.umd.edu/dawn/dawn-common
+module gitlab.cs.umd.edu/dawn/dawn-go-common
 
 
 go 1.17

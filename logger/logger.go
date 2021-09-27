@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	errors "gitlab.cs.umd.edu/dawn/dawn-common/errors"
+	errors "gitlab.cs.umd.edu/dawn/dawn-go-common/errors"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
