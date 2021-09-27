@@ -12,3 +12,9 @@ type Address struct {
 	City         string `bson:"city"`
 	State        string `bson:"state"`
 }
+
+type LocationAddress struct {
+	Longitude float64 `bson:"longitude"`
+	Latitude  float64 `bson:"latitude"`
+	Address   Address `bson:"address"`
+}
