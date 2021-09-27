@@ -1,4 +1,4 @@
-package context
+package common
 
 import (
 	"github.com/gofiber/fiber/v2"

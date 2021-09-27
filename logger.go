@@ -1,4 +1,4 @@
-package logger
+package common
 
 import (
 	"encoding/json"
@@ -6,8 +6,6 @@ import (
 	"os"
 	"strconv"
 	"time"
-
-	errors "gitlab.cs.umd.edu/dawn/dawn-go-common/errors"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
@@ -19,7 +17,7 @@ type RequestLog struct {
 	PID        string
 	Level      string
 	RequestId  string
-	Error      *errors.DawnError
+	Error      *DawnError
 	StatusCode string
 	Method     string
 	Path       string
@@ -119,12 +117,12 @@ func FiberLogger() fiber.Handler {
 	}
 }
 
-func ErrorHandler(ctx *fiber.Ctx, err error) *errors.DawnError {
-	var returnError *errors.DawnError
-	if e, ok := err.(*errors.DawnError); ok {
+func ErrorHandler(ctx *fiber.Ctx, err error) *DawnError {
+	var returnError *DawnError
+	if e, ok := err.(*DawnError); ok {
 		returnError = e
 	} else {
-		returnError = errors.Build(err)
+		returnError = Build(err)
 	}
 
 	return returnError
