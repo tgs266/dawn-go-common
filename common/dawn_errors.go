@@ -20,6 +20,7 @@ type DawnError struct {
 	LogDetails  string            `json:"log_details"`
 	Code        int               `json:"code"`
 	Details     map[string]string `json:"details"`
+	ServiceName string            `json:"service_name"`
 }
 
 type StandardError struct {
@@ -40,10 +41,16 @@ func (err *DawnError) Error() string {
 func (err *DawnError) BuildStandardError(ctx *fiber.Ctx) StandardError {
 	requestId := ctx.Locals("requestId")
 	details := map[string]string{"RequestId": fmt.Sprintf("%s", requestId)}
+
+	serviceName := err.ServiceName
+	if serviceName == "" {
+		serviceName = viper.GetString("app.name")
+	}
+
 	for k, v := range err.Details {
 		details[k] = v
 	}
-	return StandardError{Source: viper.GetString("app.name"), ErrorCode: err.Name, Description: err.Description, Details: details}
+	return StandardError{Source: serviceName, ErrorCode: err.Name, Description: err.Description, Details: details}
 }
 
 func (err *DawnError) AddLogDetails(logDetails string) *DawnError {
@@ -53,6 +60,11 @@ func (err *DawnError) AddLogDetails(logDetails string) *DawnError {
 
 func (err *DawnError) PutDetail(key string, value string) *DawnError {
 	err.Details[key] = value
+	return err
+}
+
+func (err *DawnError) ChangeServiceName(name string) *DawnError {
+	err.ServiceName = name
 	return err
 }
 
