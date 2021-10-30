@@ -2,6 +2,7 @@ package testing
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -16,6 +17,7 @@ func TestGetRequest(app *fiber.App, endpoint string, token string, response inte
 	httpResponse, _ := app.Test(req)
 	defer httpResponse.Body.Close()
 	json.NewDecoder(httpResponse.Body).Decode(&response)
+	fmt.Println(response)
 	return httpResponse.StatusCode
 }
 
