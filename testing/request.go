@@ -10,7 +10,13 @@ import (
 )
 
 func TestGetRequest(app *fiber.App, endpoint string, params *url.Values, token string, response interface{}) int {
-	req, _ := http.NewRequest("GET", "http://test.com"+endpoint, strings.NewReader(params.Encode()))
+	var useParams *strings.Reader
+	useParams = nil
+	if params != nil {
+		useParams = strings.NewReader(params.Encode())
+	}
+
+	req, _ := http.NewRequest("GET", "http://test.com"+endpoint, useParams)
 	req.Header.Set("Authorization", "token")
 
 	httpResponse, _ := app.Test(req)
