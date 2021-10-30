@@ -9,7 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func TestGetRequest(app fiber.App, endpoint string, params *url.Values, token string, response interface{}) {
+func TestGetRequest(app *fiber.App, endpoint string, params *url.Values, token string, response interface{}) {
 	req, _ := http.NewRequest("GET", "http://test.com"+endpoint, strings.NewReader(params.Encode()))
 	req.Header.Set("Authorization", "token")
 
