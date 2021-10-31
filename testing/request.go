@@ -1,6 +1,7 @@
 package testing
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/url"
@@ -32,6 +33,17 @@ func TestGetRequestParams(app *fiber.App, endpoint string, params url.Values, to
 func TestPostRequest(app *fiber.App, endpoint string, params url.Values, token string, response interface{}) int {
 	req, _ := http.NewRequest("POST", "http://test.com"+endpoint, strings.NewReader(params.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Authorization", "token")
+
+	httpResponse, _ := app.Test(req)
+	defer httpResponse.Body.Close()
+	json.NewDecoder(httpResponse.Body).Decode(&response)
+	return httpResponse.StatusCode
+}
+
+func TestPostRequestJson(app *fiber.App, endpoint string, params []byte, token string, response interface{}) int {
+	req, _ := http.NewRequest("POST", "http://test.com"+endpoint, bytes.NewBuffer(params))
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
 	req.Header.Set("Authorization", "token")
 
 	httpResponse, _ := app.Test(req)
