@@ -39,3 +39,14 @@ func TestPostRequest(app *fiber.App, endpoint string, params url.Values, token s
 	json.NewDecoder(httpResponse.Body).Decode(&response)
 	return httpResponse.StatusCode
 }
+
+func TestPutRequest(app *fiber.App, endpoint string, params url.Values, token string, response interface{}) int {
+	req, _ := http.NewRequest("PUT", "http://test.com"+endpoint, strings.NewReader(params.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Authorization", "token")
+
+	httpResponse, _ := app.Test(req)
+	defer httpResponse.Body.Close()
+	json.NewDecoder(httpResponse.Body).Decode(&response)
+	return httpResponse.StatusCode
+}
