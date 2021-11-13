@@ -12,6 +12,7 @@ var (
 	Conn       *mongo.Client
 	Ctx               = context.Background()
 	ConnString string = ""
+	DB         *mongo.Database
 )
 
 func CreateDBSession() error {
@@ -26,5 +27,8 @@ func CreateDBSession() error {
 	if err != nil {
 		return err
 	}
+
+	// DB = Conn.Database(dbName)
+
 	return nil
 }
