@@ -20,8 +20,13 @@ func TestGetRequest(app *fiber.App, endpoint string, token string, response inte
 	return httpResponse.StatusCode
 }
 
-func TestGetRequestParams(app *fiber.App, endpoint string, params url.Values, token string, response interface{}) int {
-	req, _ := http.NewRequest("GET", "http://test.com"+endpoint, strings.NewReader(params.Encode()))
+func TestGetRequestParams(app *fiber.App, endpoint string, params map[string]string, token string, response interface{}) int {
+	var args []string
+	for k := range params {
+		args = append(args, k+"="+params[k])
+	}
+
+	req, _ := http.NewRequest("GET", "http://test.com"+endpoint+"?"+strings.Join(args, "&"), nil)
 	req.Header.Set("Authorization", "token")
 
 	httpResponse, _ := app.Test(req)
