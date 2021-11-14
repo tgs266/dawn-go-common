@@ -7,9 +7,10 @@ import (
 )
 
 type Heartbeat struct {
-	Status   string `json:"status"`
-	DBStatus string `json:"dbstatus"`
-	HostName string `json:"hostname"`
+	Status      string `json:"status"`
+	DBStatus    string `json:"dbstatus"`
+	HostName    string `json:"hostname"`
+	RequireAuth bool   `json:"require_auth"`
 }
 
 func DecodeHeartbeat(data []byte) *Heartbeat {

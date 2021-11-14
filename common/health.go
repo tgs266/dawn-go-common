@@ -71,9 +71,10 @@ func PublishHeartbeat() {
 	healthStruct := GetHealthStruct()
 	if healthStruct.Status != LastHeartbeat.Status {
 		heartBeat := messaging.Heartbeat{
-			Status:   healthStruct.Status,
-			DBStatus: healthStruct.DBStatus,
-			HostName: hostname,
+			Status:      healthStruct.Status,
+			DBStatus:    healthStruct.DBStatus,
+			HostName:    hostname,
+			RequireAuth: viper.GetBool("security.auth"),
 		}
 		messaging.PublishHeartbeat(heartBeat)
 		LastHeartbeat = heartBeat
@@ -85,9 +86,10 @@ func ForcePublishHeartbeat() {
 
 	healthStruct := GetHealthStruct()
 	heartBeat := messaging.Heartbeat{
-		Status:   healthStruct.Status,
-		DBStatus: healthStruct.DBStatus,
-		HostName: hostname,
+		Status:      healthStruct.Status,
+		DBStatus:    healthStruct.DBStatus,
+		HostName:    hostname,
+		RequireAuth: viper.GetBool("security.auth"),
 	}
 	messaging.PublishHeartbeat(heartBeat)
 	LastHeartbeat = heartBeat
