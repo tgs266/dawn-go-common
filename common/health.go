@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"time"
 
@@ -74,6 +75,7 @@ func PublishHeartbeat() {
 
 	healthStruct := GetHealthStruct()
 	if healthStruct.Status != LastHeartbeat.Status {
+		fmt.Println(healthStruct.Status, LastHeartbeat.Status)
 		heartBeat := messaging.Heartbeat{
 			Status:   healthStruct.Status,
 			DBStatus: healthStruct.DBStatus,
