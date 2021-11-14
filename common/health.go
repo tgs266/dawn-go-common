@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"time"
 
@@ -60,7 +61,7 @@ func RegisterHealth(app *fiber.App) {
 }
 
 func StartHeartbeatMessenger() {
-	ticker := time.NewTicker(30 * time.Second)
+	ticker := time.NewTicker(10 * time.Second)
 	quit := make(chan struct{})
 
 	hostname, _ := os.Hostname()
@@ -72,6 +73,7 @@ func StartHeartbeatMessenger() {
 		for {
 			select {
 			case <-ticker.C:
+				fmt.Println("publishing heartbeat")
 				healthStruct := GetHealthStruct()
 				heartBeat := messaging.Heartbeat{
 					Status:   healthStruct.Status,

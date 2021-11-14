@@ -1,7 +1,7 @@
 package messaging
 
 import (
-	"encoding/json"
+	"os"
 
 	"github.com/streadway/amqp"
 )
@@ -13,7 +13,9 @@ type Heartbeat struct {
 }
 
 func PublishHeartbeat(heartbeat Heartbeat) {
-	b, _ := json.Marshal(heartbeat)
+	// b, _ := json.Marshal(heartbeat)
+	hostName, _ := os.Hostname()
+	b := []byte(hostName)
 	Publish("heartbeat", b)
 }
 
