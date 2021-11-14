@@ -38,6 +38,9 @@ func MakeQueue(name string) (Queue, error) {
 }
 
 func DeclarePublisherQueue(name string) {
+	if !Alive {
+		return
+	}
 	queue, err := GetQueue(name)
 	if err != nil {
 		queue, err = MakeQueue(name)
@@ -69,6 +72,9 @@ func DeclarePublisherQueue(name string) {
 }
 
 func DeclareConsumerQueue(name string) {
+	if !Alive {
+		return
+	}
 
 	queue, err := GetQueue(name)
 	if err != nil {
@@ -101,6 +107,9 @@ func DeclareConsumerQueue(name string) {
 }
 
 func Publish(name string, data []byte) {
+	if !Alive {
+		return
+	}
 	queue, _ := GetQueue(name)
 
 	err := queue.Channel.Publish(
@@ -119,6 +128,9 @@ func Publish(name string, data []byte) {
 }
 
 func TestPublish(name string, test string) {
+	if !Alive {
+		return
+	}
 	body := test
 
 	queue, _ := GetQueue(name)
@@ -139,6 +151,9 @@ func TestPublish(name string, test string) {
 }
 
 func CreateMessageConsumer(name string) <-chan amqp.Delivery {
+	if !Alive {
+		return nil
+	}
 	queue, _ := GetQueue(name)
 
 	msgs, err := queue.Channel.Consume(
