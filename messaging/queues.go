@@ -1,6 +1,7 @@
 package messaging
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/streadway/amqp"
@@ -8,18 +9,42 @@ import (
 
 type Queue struct {
 	Name      string
+	Channel   *amqp.Channel
 	Publisher amqp.Queue
 	Consumer  amqp.Queue
 }
 
 var Queues = make(map[string]Queue)
 
-func DeclarePublisherQueue(name string) {
+func GetQueue(name string) (Queue, error) {
+	if queue, ok := Queues[name]; ok {
+		return queue, nil
+	}
+	return Queue{}, errors.New("Nope")
+}
+
+func MakeQueue(name string) (Queue, error) {
 	ch, err := OpenChannel()
 	if err != nil {
-		fmt.Println("cant open channel")
+		return Queue{}, err
 	}
-	q, err2 := ch.QueueDeclare(
+	return Queue{
+		Name:    name,
+		Channel: ch,
+	}, nil
+
+}
+
+func DeclarePublisherQueue(name string) {
+	queue, err := GetQueue(name)
+	if err != nil {
+		queue, err = MakeQueue(name)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+
+	q, err2 := queue.Channel.QueueDeclare(
 		name,  // name
 		false, // durable
 		false, // delete when unused
@@ -32,24 +57,21 @@ func DeclarePublisherQueue(name string) {
 		fmt.Println("cant open queue")
 	}
 
-	if queue, ok := Queues["foo"]; ok {
-		queue.Publisher = q
-		Queues[name] = queue
-	} else {
-		queue := Queue{
-			Name:      name,
-			Publisher: q,
-		}
-		Queues[name] = queue
-	}
+	queue.Publisher = q
+	Queues[name] = queue
 }
 
 func DeclareConsumerQueue(name string) {
-	ch, err := OpenChannel()
+
+	queue, err := GetQueue(name)
 	if err != nil {
-		fmt.Println("cant open channel")
+		queue, err = MakeQueue(name)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
-	q, err2 := ch.QueueDeclare(
+
+	q, err2 := queue.Channel.QueueDeclare(
 		name,  // name
 		false, // durable
 		false, // delete when unused
@@ -61,28 +83,17 @@ func DeclareConsumerQueue(name string) {
 	if err2 != nil {
 		fmt.Println("cant open queue")
 	}
-	if queue, ok := Queues["foo"]; ok {
-		queue.Consumer = q
-		Queues[name] = queue
-	} else {
-		queue := Queue{
-			Name:     name,
-			Consumer: q,
-		}
-		Queues[name] = queue
-	}
+
+	queue.Consumer = q
+	Queues[name] = queue
 }
 
 func TestPublish(name string, test string) {
 	body := test
-	ch, err := OpenChannel()
-	if err != nil {
-		fmt.Println("cant open channel")
-	}
 
-	queue := Queues[name]
+	queue, _ := GetQueue(name)
 
-	err = ch.Publish(
+	err := queue.Channel.Publish(
 		"",                   // exchange
 		queue.Publisher.Name, // routing key
 		false,                // mandatory
@@ -98,14 +109,9 @@ func TestPublish(name string, test string) {
 }
 
 func CreateMessageConsumer(name string) <-chan amqp.Delivery {
-	ch, err := OpenChannel()
-	if err != nil {
-		fmt.Println("cant open channel")
-	}
+	queue, _ := GetQueue(name)
 
-	queue := Queues[name]
-
-	msgs, err := ch.Consume(
+	msgs, err := queue.Channel.Consume(
 		queue.Consumer.Name, // queue
 		"",                  // consumer
 		true,                // auto-ack
