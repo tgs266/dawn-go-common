@@ -2,7 +2,6 @@ package common
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"time"
 
@@ -58,13 +57,29 @@ func HealthService(c DawnCtx) *HealthStruct {
 func RegisterHealth(app *fiber.App) {
 	api := app.Group(viper.GetString("server.context-path"))
 	api.Get("health", Health)
+
+	messaging.Connect()
+	messaging.DeclarePublisherQueue("heartbeat")
+
+	PublishHeartbeat()
+	StartHeartbeatMessenger()
+}
+
+func PublishHeartbeat() {
+	hostname, _ := os.Hostname()
+
+	healthStruct := GetHealthStruct()
+	heartBeat := messaging.Heartbeat{
+		Status:   healthStruct.Status,
+		DBStatus: healthStruct.DBStatus,
+		HostName: hostname,
+	}
+	messaging.PublishHeartbeat(heartBeat)
 }
 
 func StartHeartbeatMessenger() {
 	ticker := time.NewTicker(10 * time.Second)
 	quit := make(chan struct{})
-
-	hostname, _ := os.Hostname()
 
 	messaging.Connect()
 	messaging.DeclarePublisherQueue("heartbeat")
@@ -73,14 +88,7 @@ func StartHeartbeatMessenger() {
 		for {
 			select {
 			case <-ticker.C:
-				fmt.Println("publishing heartbeat")
-				healthStruct := GetHealthStruct()
-				heartBeat := messaging.Heartbeat{
-					Status:   healthStruct.Status,
-					DBStatus: healthStruct.DBStatus,
-					HostName: hostname,
-				}
-				messaging.PublishHeartbeat(heartBeat)
+				PublishHeartbeat()
 			case <-quit:
 				ticker.Stop()
 				return

@@ -1,7 +1,7 @@
 package messaging
 
 import (
-	"os"
+	"encoding/json"
 
 	"github.com/streadway/amqp"
 )
@@ -12,11 +12,19 @@ type Heartbeat struct {
 	HostName string `json:"hostname"`
 }
 
+func DecodeHeartbeat(data []byte) Heartbeat {
+	var heartbeat Heartbeat
+	json.Unmarshal(data, heartbeat)
+	return heartbeat
+}
+
+func EncodeHeartbeat(heartbeat Heartbeat) []byte {
+	b, _ := json.Marshal(heartbeat)
+	return b
+}
+
 func PublishHeartbeat(heartbeat Heartbeat) {
-	// b, _ := json.Marshal(heartbeat)
-	hostName, _ := os.Hostname()
-	b := []byte(hostName)
-	Publish("heartbeat", b)
+	Publish("heartbeat", EncodeHeartbeat(heartbeat))
 }
 
 func GetHeartbeatMessageStream() <-chan amqp.Delivery {

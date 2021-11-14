@@ -9,9 +9,12 @@ var (
 )
 
 func Connect() error {
-	conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
-	Conn = conn
-	return err
+	if Conn != nil {
+		conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
+		Conn = conn
+		return err
+	}
+	return nil
 }
 
 func OpenChannel() (*amqp.Channel, error) {
