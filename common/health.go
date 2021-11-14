@@ -2,10 +2,12 @@ package common
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
+	"gitlab.cs.umd.edu/dawn/dawn-go-common/messaging"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
@@ -27,7 +29,7 @@ func Health(c *fiber.Ctx) error {
 	)
 }
 
-func HealthService(c DawnCtx) *HealthStruct {
+func GetHealthStruct() HealthStruct {
 	status := "available"
 	dbstatus := ""
 	if viper.IsSet("db.uri") {
@@ -41,13 +43,46 @@ func HealthService(c DawnCtx) *HealthStruct {
 			dbstatus = "up"
 		}
 	}
-	return &HealthStruct{
+	return HealthStruct{
 		Status:   status,
 		DBStatus: dbstatus,
 	}
 }
 
+func HealthService(c DawnCtx) *HealthStruct {
+	val := GetHealthStruct()
+	return &val
+}
+
 func RegisterHealth(app *fiber.App) {
 	api := app.Group(viper.GetString("server.context-path"))
 	api.Get("health", Health)
+}
+
+func StartHeartbeatMessenger() {
+	ticker := time.NewTicker(30 * time.Second)
+	quit := make(chan struct{})
+
+	hostname, _ := os.Hostname()
+
+	messaging.Connect()
+	messaging.DeclarePublisherQueue("heartbeat")
+
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				healthStruct := GetHealthStruct()
+				heartBeat := messaging.Heartbeat{
+					Status:   healthStruct.Status,
+					DBStatus: healthStruct.DBStatus,
+					HostName: hostname,
+				}
+				messaging.PublishHeartbeat(heartBeat)
+			case <-quit:
+				ticker.Stop()
+				return
+			}
+		}
+	}()
 }
