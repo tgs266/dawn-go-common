@@ -17,6 +17,7 @@ func Connect() error {
 		Conn = conn
 		if err != nil {
 			fmt.Println("connection failed")
+			fmt.Println(err)
 		} else {
 			fmt.Println("success")
 		}
