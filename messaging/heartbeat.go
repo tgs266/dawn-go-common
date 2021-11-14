@@ -11,6 +11,7 @@ type Heartbeat struct {
 	DBStatus    string `json:"dbstatus"`
 	HostName    string `json:"hostname"`
 	RequireAuth bool   `json:"require_auth"`
+	ContextPath string `json:"context_path"`
 }
 
 func DecodeHeartbeat(data []byte) *Heartbeat {

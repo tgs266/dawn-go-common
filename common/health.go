@@ -75,6 +75,7 @@ func PublishHeartbeat() {
 			DBStatus:    healthStruct.DBStatus,
 			HostName:    hostname,
 			RequireAuth: viper.GetBool("security.auth"),
+			ContextPath: viper.GetString("server.context-path"),
 		}
 		messaging.PublishHeartbeat(heartBeat)
 		LastHeartbeat = heartBeat
@@ -90,6 +91,7 @@ func ForcePublishHeartbeat() {
 		DBStatus:    healthStruct.DBStatus,
 		HostName:    hostname,
 		RequireAuth: viper.GetBool("security.auth"),
+		ContextPath: viper.GetString("server.context-path"),
 	}
 	messaging.PublishHeartbeat(heartBeat)
 	LastHeartbeat = heartBeat
