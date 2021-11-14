@@ -59,6 +59,8 @@ func RegisterHealth(app *fiber.App) {
 	api.Get("health", Health)
 }
 
+var LastHeartbeat = messaging.Heartbeat{}
+
 func RegisterHeartbeatPublisher() {
 	messaging.Connect()
 	messaging.DeclarePublisherQueue("heartbeat")
@@ -71,12 +73,15 @@ func PublishHeartbeat() {
 	hostname, _ := os.Hostname()
 
 	healthStruct := GetHealthStruct()
-	heartBeat := messaging.Heartbeat{
-		Status:   healthStruct.Status,
-		DBStatus: healthStruct.DBStatus,
-		HostName: hostname,
+	if healthStruct.Status != LastHeartbeat.Status {
+		heartBeat := messaging.Heartbeat{
+			Status:   healthStruct.Status,
+			DBStatus: healthStruct.DBStatus,
+			HostName: hostname,
+		}
+		messaging.PublishHeartbeat(heartBeat)
+		LastHeartbeat = heartBeat
 	}
-	messaging.PublishHeartbeat(heartBeat)
 }
 
 func StartHeartbeatMessenger() {
