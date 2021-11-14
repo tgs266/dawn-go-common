@@ -57,7 +57,9 @@ func HealthService(c DawnCtx) *HealthStruct {
 func RegisterHealth(app *fiber.App) {
 	api := app.Group(viper.GetString("server.context-path"))
 	api.Get("health", Health)
+}
 
+func RegisterHeartbeatPublisher() {
 	messaging.Connect()
 	messaging.DeclarePublisherQueue("heartbeat")
 
