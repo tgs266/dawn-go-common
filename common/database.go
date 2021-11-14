@@ -15,7 +15,7 @@ var (
 	DB         *mongo.Database
 )
 
-func CreateDBSession() error {
+func CreateDBSession(dbName string) error {
 	ConnString = viper.GetString("db.uri") + viper.GetString("db.database")
 	var err error
 	Conn, err = mongo.Connect(Ctx, options.Client().
@@ -28,7 +28,7 @@ func CreateDBSession() error {
 		return err
 	}
 
-	// DB = Conn.Database(dbName)
+	DB = Conn.Database(dbName)
 
 	return nil
 }
