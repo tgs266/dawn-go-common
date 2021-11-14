@@ -32,3 +32,9 @@ func GetHeartbeatMessageStream() <-chan amqp.Delivery {
 	DeclareConsumerQueue("heartbeat")
 	return CreateMessageConsumer("heartbeat")
 }
+
+func TellAllToSendHeartbeats() {
+	Connect()
+	DeclarePublisherQueue("send_heartbeat")
+	Publish("send_heartbeat", []byte("send"))
+}

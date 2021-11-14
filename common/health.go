@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"time"
 
@@ -16,11 +17,6 @@ type HealthStruct struct {
 	DBStatus string `json:"dbstatus"`
 	// Details  map[string]string `json:"details"`
 }
-
-// func (err *HealthStruct) AddLogDetails(key string, value string) *HealthStruct {
-// 	err.Details[key] = value
-// 	return err
-// }
 
 func Health(c *fiber.Ctx) error {
 	ctx := BuildCtx(c)
@@ -82,6 +78,31 @@ func PublishHeartbeat() {
 		messaging.PublishHeartbeat(heartBeat)
 		LastHeartbeat = heartBeat
 	}
+}
+
+func ForcePublishHeartbeat() {
+	hostname, _ := os.Hostname()
+
+	healthStruct := GetHealthStruct()
+	heartBeat := messaging.Heartbeat{
+		Status:   healthStruct.Status,
+		DBStatus: healthStruct.DBStatus,
+		HostName: hostname,
+	}
+	messaging.PublishHeartbeat(heartBeat)
+	LastHeartbeat = heartBeat
+}
+
+func StartTellAllConsumer() {
+	messaging.Connect()
+	messaging.DeclareConsumerQueue("send_heartbeat")
+	msgs := messaging.CreateMessageConsumer("send_heartbeat")
+	go func() {
+		for d := range msgs {
+			fmt.Println(string(d.Body))
+			ForcePublishHeartbeat()
+		}
+	}()
 }
 
 func StartHeartbeatMessenger() {
