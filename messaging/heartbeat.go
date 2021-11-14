@@ -12,8 +12,8 @@ type Heartbeat struct {
 	HostName string `json:"hostname"`
 }
 
-func DecodeHeartbeat(data []byte) Heartbeat {
-	var heartbeat Heartbeat
+func DecodeHeartbeat(data []byte) *Heartbeat {
+	heartbeat := &Heartbeat{}
 	json.Unmarshal(data, heartbeat)
 	return heartbeat
 }
