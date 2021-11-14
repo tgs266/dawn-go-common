@@ -12,6 +12,7 @@ import (
 func FiberLoadBalanceInsert() fiber.Handler {
 
 	return func(c *fiber.Ctx) error {
+		fmt.Println("lets roll")
 		if viper.GetString("app.logLevel") == "DEBUG" {
 			fmt.Println(strconv.Itoa(os.Getpid()))
 			c.Append("handler", strconv.Itoa(os.Getpid()))
