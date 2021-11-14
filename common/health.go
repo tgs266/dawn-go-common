@@ -112,6 +112,8 @@ func StartHeartbeatMessenger() {
 	messaging.Connect()
 	messaging.DeclarePublisherQueue("heartbeat")
 
+	StartTellAllConsumer()
+
 	go func() {
 		for {
 			select {
