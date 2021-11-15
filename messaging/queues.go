@@ -16,6 +16,16 @@ type Queue struct {
 	HasConsumer  bool
 }
 
+func (q Queue) Bind(exchangeName string) {
+	q.Channel.QueueBind(
+		q.Name,
+		"",
+		exchangeName,
+		false,
+		nil,
+	)
+}
+
 var Queues = make(map[string]Queue)
 
 func GetQueue(name string) (Queue, error) {
@@ -105,6 +115,24 @@ func Publish(name string, data []byte) {
 
 	err := queue.Channel.Publish(
 		"",                   // exchange
+		queue.Publisher.Name, // routing key
+		false,                // mandatory
+		false,                // immediate
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        data,
+		},
+	)
+	if err != nil {
+		fmt.Println("cant publish")
+	}
+}
+
+func PublishOverExchange(name string, exchange string, data []byte) {
+	queue, _ := GetQueue(name)
+
+	err := queue.Channel.Publish(
+		exchange,             // exchange
 		queue.Publisher.Name, // routing key
 		false,                // mandatory
 		false,                // immediate

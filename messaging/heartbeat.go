@@ -38,5 +38,15 @@ func GetHeartbeatMessageStream() <-chan amqp.Delivery {
 func TellAllToSendHeartbeats() {
 	Connect()
 	DeclarePublisherQueue("send_heartbeat")
-	Publish("send_heartbeat", []byte("send"))
+	q, _ := GetQueue("send_heartbeat")
+	q.Channel.ExchangeDeclare(
+		"send_heartbeat_exchange", // name
+		"fanout",                  // type
+		true,                      // durable
+		false,                     // auto-deleted
+		false,                     // internal
+		false,                     // no-wait
+		nil,                       // arguments
+	)
+	PublishOverExchange("send_heartbeat", "send_heartbeat_exchange", []byte("send"))
 }

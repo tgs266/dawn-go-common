@@ -100,6 +100,8 @@ func ForcePublishHeartbeat() {
 func StartTellAllConsumer() {
 	messaging.Connect()
 	messaging.DeclareConsumerQueue("send_heartbeat")
+	q, _ := messaging.GetQueue("send_heartbeat")
+	q.Bind("send_heartbeat_exchange")
 	msgs := messaging.CreateMessageConsumer("send_heartbeat")
 	go func() {
 		for d := range msgs {
