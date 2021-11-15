@@ -2,7 +2,6 @@ package common
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"time"
 
@@ -106,8 +105,7 @@ func StartTellAllConsumer() {
 	q.Bind("send_heartbeat_exchange")
 	msgs := messaging.CreateMessageConsumer("send_heartbeat-" + hostname)
 	go func() {
-		for d := range msgs {
-			fmt.Println(string(d.Body))
+		for range msgs {
 			ForcePublishHeartbeat()
 		}
 	}()
