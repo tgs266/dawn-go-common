@@ -132,3 +132,20 @@ func StartHeartbeatMessenger() {
 		}
 	}()
 }
+
+func SendDeadHeartbeat() {
+	hostname, _ := os.Hostname()
+
+	healthStruct := GetHealthStruct()
+	if healthStruct.Status != LastHeartbeat.Status {
+		heartBeat := messaging.Heartbeat{
+			Status:      "unavailable",
+			DBStatus:    healthStruct.DBStatus,
+			HostName:    hostname,
+			RequireAuth: viper.GetBool("security.auth"),
+			ContextPath: viper.GetString("server.context-path"),
+		}
+		messaging.PublishHeartbeat(heartBeat)
+		LastHeartbeat = heartBeat
+	}
+}
