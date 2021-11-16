@@ -1,6 +1,8 @@
 package metrics
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -23,7 +25,9 @@ func New() fiber.Handler {
 			return c.Next()
 		}
 
-		totalRequests.WithLabelValues(c.Path()).Inc()
+		fmt.Println(c.Route().Path)
+
+		totalRequests.WithLabelValues(c.Route().Path).Inc()
 
 		return c.Next()
 	}
