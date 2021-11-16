@@ -9,7 +9,7 @@ import (
 
 var totalRequests = promauto.NewCounterVec(
 	prometheus.CounterOpts{
-		Name: "http_requests_total",
+		Name: "http_requests_total_path",
 		Help: "Number of get requests.",
 	},
 	[]string{"path"},
