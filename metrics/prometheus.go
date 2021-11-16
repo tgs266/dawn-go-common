@@ -1,8 +1,6 @@
 package metrics
 
 import (
-	"fmt"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -24,9 +22,6 @@ func New() fiber.Handler {
 		if c.Path() == viper.GetString("server.context-path")+"/metrics" {
 			return c.Next()
 		}
-
-		fmt.Println(c.Route().Path)
-		fmt.Println(c.Path())
 
 		totalRequests.WithLabelValues(c.Path()).Inc()
 
