@@ -26,8 +26,9 @@ func New() fiber.Handler {
 		}
 
 		fmt.Println(c.Route().Path)
+		fmt.Println(c.Path())
 
-		totalRequests.WithLabelValues(c.Route().Path).Inc()
+		totalRequests.WithLabelValues(c.Path()).Inc()
 
 		return c.Next()
 	}
