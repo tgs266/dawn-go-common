@@ -136,6 +136,10 @@ func NewWithLabels(labels map[string]string, namespace, subsystem string) *Fiber
 }
 
 // RegisterAt will register the prometheus handler at a given URL
+func (ps *FiberPrometheus) RegisterError(code string, method string, path string) {
+	ps.requestsError.WithLabelValues(code, method, path).
+		Inc()
+}
 func (ps *FiberPrometheus) RegisterAt(app *fiber.App, url string) {
 	ps.defaultURL = url
 	app.Get(ps.defaultURL, adaptor.HTTPHandler(promhttp.Handler()))
