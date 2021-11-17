@@ -134,7 +134,7 @@ func (ps *FiberPrometheus) Middleware(ctx *fiber.Ctx) error {
 
 	start := time.Now()
 	method := ctx.Route().Method
-	path := ctx.Route().Path
+	path := string(ctx.Request().RequestURI())
 
 	if path == ps.defaultURL {
 		return ctx.Next()
