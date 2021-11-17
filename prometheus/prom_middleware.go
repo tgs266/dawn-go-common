@@ -157,8 +157,8 @@ func (ps *FiberPrometheus) Middleware(ctx *fiber.Ctx) error {
 	}()
 
 	if err := ctx.Next(); err != nil {
-		statusCode := strconv.Itoa(ctx.Response().StatusCode())
-		ps.requestsError.WithLabelValues(statusCode, method, path).Inc()
+		// statusCode := strconv.Itoa(ctx.Response().StatusCode())
+		// ps.requestsError.WithLabelValues(statusCode, method, path).Inc()
 		return err
 	}
 
