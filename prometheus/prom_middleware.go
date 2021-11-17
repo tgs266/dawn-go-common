@@ -2,6 +2,7 @@ package prometheus
 
 import (
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gofiber/adaptor/v2"
@@ -134,7 +135,8 @@ func (ps *FiberPrometheus) Middleware(ctx *fiber.Ctx) error {
 
 	start := time.Now()
 	method := ctx.Route().Method
-	path := string(ctx.Request().RequestURI())
+	ctx.Path()
+	path := strings.Split(string(ctx.Request().RequestURI()), "?")[0]
 
 	if path == ps.defaultURL {
 		return ctx.Next()
