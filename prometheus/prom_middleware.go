@@ -14,7 +14,6 @@ import (
 // FiberPrometheus ...
 type FiberPrometheus struct {
 	requestsTotal   *prometheus.CounterVec
-	requestsError   *prometheus.CounterVec
 	requestDuration *prometheus.HistogramVec
 	requestInFlight *prometheus.GaugeVec
 	defaultURL      string
@@ -33,15 +32,6 @@ func create(servicename, namespace, subsystem string, labels map[string]string) 
 		prometheus.CounterOpts{
 			Name:        prometheus.BuildFQName(namespace, subsystem, "requests_total"),
 			Help:        "Count all http requests by status code, method and path.",
-			ConstLabels: constLabels,
-		},
-		[]string{"status_code", "method", "path"},
-	)
-
-	counterError := promauto.NewCounterVec(
-		prometheus.CounterOpts{
-			Name:        prometheus.BuildFQName(namespace, subsystem, "requests_total_error"),
-			Help:        "Count all http requests with errors by status code, method and path.",
 			ConstLabels: constLabels,
 		},
 		[]string{"status_code", "method", "path"},
@@ -98,7 +88,6 @@ func create(servicename, namespace, subsystem string, labels map[string]string) 
 
 	return &FiberPrometheus{
 		requestsTotal:   counter,
-		requestsError:   counterError,
 		requestDuration: histogram,
 		requestInFlight: gauge,
 		defaultURL:      "/metrics",
@@ -145,7 +134,7 @@ func (ps *FiberPrometheus) Middleware(ctx *fiber.Ctx) error {
 
 	start := time.Now()
 	method := ctx.Route().Method
-	path := ctx.Path()
+	path := ctx.Route().Path
 
 	if path == ps.defaultURL {
 		return ctx.Next()
@@ -155,10 +144,7 @@ func (ps *FiberPrometheus) Middleware(ctx *fiber.Ctx) error {
 	defer func() {
 		ps.requestInFlight.WithLabelValues(method, path).Dec()
 	}()
-
 	if err := ctx.Next(); err != nil {
-		// statusCode := strconv.Itoa(ctx.Response().StatusCode())
-		// ps.requestsError.WithLabelValues(statusCode, method, path).Inc()
 		return err
 	}
 
@@ -171,7 +157,4 @@ func (ps *FiberPrometheus) Middleware(ctx *fiber.Ctx) error {
 		Observe(elapsed)
 
 	return nil
-	// 	if err := ctx.Next(); err != nil {
-	// 		return err
-	// 	}
 }
