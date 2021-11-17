@@ -140,7 +140,7 @@ func SendDeadHeartbeat() {
 
 		healthStruct := GetHealthStruct()
 		heartBeat := messaging.Heartbeat{
-			Status:      "unavailable",
+			Status:      "stopped",
 			DBStatus:    healthStruct.DBStatus,
 			HostName:    hostname,
 			RequireAuth: viper.GetBool("security.auth"),
