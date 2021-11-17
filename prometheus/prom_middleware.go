@@ -1,7 +1,6 @@
 package prometheus
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 
@@ -135,8 +134,7 @@ func (ps *FiberPrometheus) Middleware(ctx *fiber.Ctx) error {
 
 	start := time.Now()
 	method := ctx.Route().Method
-	path := ctx.Route().Path
-	fmt.Println(ctx.Route())
+	path := ctx.Path()
 
 	if path == ps.defaultURL {
 		return ctx.Next()
