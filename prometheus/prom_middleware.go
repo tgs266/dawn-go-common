@@ -1,6 +1,7 @@
 package prometheus
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -148,6 +149,7 @@ func (ps *FiberPrometheus) Middleware(ctx *fiber.Ctx) error {
 	}()
 	if err := ctx.Next(); err != nil {
 		statusCode := strconv.Itoa(ctx.Response().StatusCode())
+		fmt.Println(statusCode)
 		ps.requestsTotal.WithLabelValues(statusCode, method, path).
 			Inc()
 		return err
