@@ -7,8 +7,12 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/spf13/viper"
 )
+
+var ErrorCount *prometheus.CounterVec
 
 type BaseError interface {
 	Error() string
@@ -88,4 +92,55 @@ func (err *DawnError) LogString(c *fiber.Ctx) {
 		output += " - " + err.LogDetails
 	}
 	fmt.Println(output)
+}
+
+func RegisterDawnPrometheus() {
+	constLabels := make(prometheus.Labels)
+	constLabels["service"] = viper.GetString("app.name")
+
+	ErrorCount = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name:        prometheus.BuildFQName("http", "", "requests_total_error"),
+			Help:        "Count all http requests by status code, method and path.",
+			ConstLabels: constLabels,
+		},
+		[]string{"status_code", "method", "path"},
+	)
+}
+
+var INTERNAL_SERVER_STANDARD_ERROR = &DawnError{
+	Name:        "INTERNAL_SERVER_ERROR",
+	Description: "Unkown internal server error occurred",
+	Code:        500,
+}
+
+func DawnErrorHandler(ctx *fiber.Ctx, err error) error {
+
+	code := fiber.StatusInternalServerError
+	message := StandardError{Source: viper.GetString("app.name"), ErrorCode: "INTERNAL_SERVER",
+		Description: "Internal Server Error Occurred", Details: map[string]string{"RequestId": ""}}
+
+	if e, ok := err.(*DawnError); ok {
+		code = e.Code
+		message = err.(*DawnError).BuildStandardError(ctx)
+	} else {
+		err = Build(err)
+	}
+
+	logMessage := BuildMessage(ctx)
+	logMessage.Error = err.(*DawnError)
+	logMessage.StatusCode = strconv.Itoa(code)
+
+	LogRequest(logMessage)
+
+	if code == 500 {
+		message = INTERNAL_SERVER_STANDARD_ERROR.BuildStandardError(ctx)
+	}
+
+	ErrorCount.WithLabelValues(logMessage.StatusCode, logMessage.Method, ctx.Route().Path).
+		Inc()
+
+	err = ctx.Status(code).JSON(message)
+
+	return nil
 }
