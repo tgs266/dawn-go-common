@@ -71,7 +71,7 @@ func DeclarePublisherQueue(name string) {
 	)
 
 	if err2 != nil {
-		fmt.Println("cant open queue")
+		log.Fatal("cant open queue")
 	}
 
 	queue.Publisher = q
@@ -103,7 +103,7 @@ func DeclareConsumerQueue(name string) {
 	)
 
 	if err2 != nil {
-		fmt.Println("cant open queue")
+		log.Fatal("cant open queue")
 	}
 
 	queue.Consumer = q
