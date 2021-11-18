@@ -125,7 +125,7 @@ func Publish(name string, data []byte) {
 		},
 	)
 	if err != nil {
-		log.Fatal("cant publish")
+		log.Fatal(err)
 	}
 }
 
@@ -143,7 +143,7 @@ func PublishOverExchange(name string, exchange string, data []byte) {
 		},
 	)
 	if err != nil {
-		log.Fatal("cant publish")
+		log.Fatal(err)
 	}
 }
 
@@ -163,7 +163,7 @@ func TestPublish(name string, test string) {
 		},
 	)
 	if err != nil {
-		log.Fatal("cant publish")
+		log.Fatal(err)
 	}
 }
 
@@ -180,7 +180,7 @@ func CreateMessageConsumer(name string) <-chan amqp.Delivery {
 		nil,                 // args
 	)
 	if err != nil {
-		log.Fatal("cant publish")
+		log.Fatal(err)
 	}
 	return msgs
 }
