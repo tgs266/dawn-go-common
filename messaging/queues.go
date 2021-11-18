@@ -3,6 +3,7 @@ package messaging
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/streadway/amqp"
 )
@@ -124,7 +125,7 @@ func Publish(name string, data []byte) {
 		},
 	)
 	if err != nil {
-		fmt.Println("cant publish")
+		log.Fatal("cant publish")
 	}
 }
 
@@ -142,7 +143,7 @@ func PublishOverExchange(name string, exchange string, data []byte) {
 		},
 	)
 	if err != nil {
-		fmt.Println("cant publish")
+		log.Fatal("cant publish")
 	}
 }
 
@@ -162,7 +163,7 @@ func TestPublish(name string, test string) {
 		},
 	)
 	if err != nil {
-		fmt.Println("cant publish")
+		log.Fatal("cant publish")
 	}
 }
 
@@ -179,7 +180,7 @@ func CreateMessageConsumer(name string) <-chan amqp.Delivery {
 		nil,                 // args
 	)
 	if err != nil {
-		fmt.Println("cant publish")
+		log.Fatal("cant publish")
 	}
 	return msgs
 }
