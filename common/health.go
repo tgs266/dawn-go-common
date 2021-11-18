@@ -125,7 +125,7 @@ func StartHeartbeatMessenger() {
 		for {
 			select {
 			case <-ticker.C:
-				PublishHeartbeat()
+				ForcePublishHeartbeat()
 			case <-quit:
 				ticker.Stop()
 				return
