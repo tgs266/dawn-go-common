@@ -51,7 +51,6 @@ func HealthService(c DawnCtx) *HealthStruct {
 }
 
 func RegisterHealth(app *fiber.App) {
-	fmt.Println("REGISTERING HEALTH")
 	api := app.Group(viper.GetString("server.context-path"))
 	api.Get("health", Health)
 }
