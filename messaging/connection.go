@@ -1,8 +1,6 @@
 package messaging
 
 import (
-	"fmt"
-
 	"github.com/streadway/amqp"
 )
 
@@ -11,12 +9,12 @@ var (
 )
 
 func Connect() error {
-	for Conn == nil {
+	if Conn == nil {
 		conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
-		if err == nil {
-			Conn = conn
+		if err != nil {
+			return nil
 		} else {
-			fmt.Println(err)
+			Conn = conn
 		}
 	}
 	return nil
