@@ -149,5 +149,6 @@ func SendDeadHeartbeat() {
 		fmt.Println(heartBeat)
 		messaging.PublishHeartbeat(heartBeat)
 		LastHeartbeat = heartBeat
+		messaging.Close()
 	}
 }
