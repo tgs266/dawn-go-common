@@ -20,6 +20,13 @@ func Connect() error {
 	return nil
 }
 
+func Close() error {
+	if Conn == nil {
+		return nil
+	}
+	return Conn.Close()
+}
+
 func OpenChannel() (*amqp.Channel, error) {
 	ch, err := Conn.Channel()
 	return ch, err
