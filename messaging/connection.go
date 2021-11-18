@@ -9,11 +9,9 @@ var (
 )
 
 func Connect() error {
-	if Conn == nil {
+	for Conn == nil {
 		conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
-		if err != nil {
-			return nil
-		} else {
+		if err == nil {
 			Conn = conn
 		}
 	}
