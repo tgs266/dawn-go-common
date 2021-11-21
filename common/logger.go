@@ -25,8 +25,8 @@ type RequestLog struct {
 	StatusCode      string
 	Method          string
 	Path            string
-	RequestHeaders  fasthttp.RequestHeader
-	ResponseHeaders fasthttp.ResponseHeader
+	RequestHeaders  string
+	ResponseHeaders string
 }
 
 type Request struct {
@@ -77,8 +77,8 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 		Method:          c.Method(),
 		Path:            c.Path(),
 		PID:             strconv.Itoa(os.Getpid()),
-		ResponseHeaders: c.Response().Header,
-		RequestHeaders:  c.Request().Header,
+		ResponseHeaders: c.Response().Header.String(),
+		RequestHeaders:  c.Request().Header.String(),
 	}
 	return message
 }
