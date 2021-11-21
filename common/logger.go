@@ -13,6 +13,9 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+var logLineCount int = 0
+var logFileCount int = 1
+
 type RequestLog struct {
 	Date       string
 	PID        string
@@ -76,21 +79,51 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 	return message
 }
 
+func writeToFile(message string, file string) {
+
+	f, err := os.OpenFile(file, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		panic(err)
+	}
+
+	defer f.Close()
+
+	if _, err = f.WriteString(message + "\n"); err != nil {
+		panic(err)
+	}
+}
+
 func LogRequest(message RequestLog) {
-	logString := ""
+	txtLogPath := ""
+	jsonLogPath := ""
+
+	if viper.GetViper().ConfigFileUsed() == "local" {
+		txtLogPath = "text-log-" + strconv.Itoa(logFileCount) + ".log"
+		jsonLogPath = "json-log-" + strconv.Itoa(logFileCount) + ".log"
+	} else {
+		hostname, _ := os.Hostname()
+		txtLogPath = "/var/log/" + hostname + "/text-log-" + strconv.Itoa(logFileCount) + ".log"
+		jsonLogPath = "/var/log/" + hostname + "/json-log-" + strconv.Itoa(logFileCount) + ".log"
+	}
+
 	if message.Error != nil {
 		message.Level = "ERROR"
 	}
-	if viper.GetString("app.logType") == "json" {
-		tempLogString, _ := json.MarshalIndent(message, "", "  ")
-		logString = string(tempLogString)
-	} else {
-		logString = fmt.Sprintf("[%s] %s %s %s %s - %s %s", fmt.Sprintf(LEVEL_FORMAT_STRING, message.Level), message.Date, message.PID, message.RequestId, message.StatusCode, message.Method, message.Path)
-		if message.Error != nil {
-			logString += " - " + message.Error.Error()
-		}
+
+	tempLogString, _ := json.MarshalIndent(message, "", "  ")
+	jsonLogString := string(tempLogString)
+	txtLogString := fmt.Sprintf("[%s] %s %s %s %s - %s %s", fmt.Sprintf(LEVEL_FORMAT_STRING, message.Level), message.Date, message.PID, message.RequestId, message.StatusCode, message.Method, message.Path)
+	if message.Error != nil {
+		txtLogString += " - " + message.Error.Error()
 	}
-	fmt.Println(logString)
+	if viper.GetString("app.logType") == "json" {
+		fmt.Println(jsonLogString)
+	} else {
+		fmt.Println(txtLogString)
+	}
+	writeToFile(jsonLogString, jsonLogPath)
+	writeToFile(txtLogString, txtLogPath)
+
 }
 
 func FiberLogger() fiber.Handler {
