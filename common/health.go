@@ -2,7 +2,6 @@ package common
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"time"
 
@@ -146,7 +145,6 @@ func SendDeadHeartbeat() {
 			RequireAuth: viper.GetBool("security.auth"),
 			ContextPath: viper.GetString("server.context-path"),
 		}
-		fmt.Println(heartBeat)
 		messaging.PublishHeartbeat(heartBeat)
 		LastHeartbeat = heartBeat
 		messaging.Close()
