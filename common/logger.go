@@ -96,18 +96,25 @@ func writeToFile(message string, file string) {
 func LogRequest(message RequestLog) {
 	txtLogPath := ""
 	jsonLogPath := ""
+	logFolder := ""
 
 	if viper.GetViper().ConfigFileUsed() == "local" {
+		logFolder = ""
 		txtLogPath = "text-log-" + strconv.Itoa(logFileCount) + ".log"
 		jsonLogPath = "json-log-" + strconv.Itoa(logFileCount) + ".log"
 	} else {
 		hostname, _ := os.Hostname()
-		txtLogPath = "/var/log/" + hostname + "/text-log-" + strconv.Itoa(logFileCount) + ".log"
-		jsonLogPath = "/var/log/" + hostname + "/json-log-" + strconv.Itoa(logFileCount) + ".log"
+		logFolder = "/var/log/" + hostname + "/"
+		txtLogPath = logFolder + "text-log-" + strconv.Itoa(logFileCount) + ".log"
+		jsonLogPath = logFolder + "json-log-" + strconv.Itoa(logFileCount) + ".log"
 	}
 
 	if message.Error != nil {
 		message.Level = "ERROR"
+	}
+
+	if _, err := os.Stat(txtLogPath); os.IsNotExist(err) {
+		os.MkdirAll(logFolder, 0700) // Create your file
 	}
 
 	tempLogString, _ := json.MarshalIndent(message, "", "  ")
@@ -123,6 +130,12 @@ func LogRequest(message RequestLog) {
 	}
 	writeToFile(jsonLogString, jsonLogPath)
 	writeToFile(txtLogString, txtLogPath)
+
+	logLineCount += 1
+	if logLineCount > 100 {
+		logFileCount += 1
+		logLineCount = 1
+	}
 
 }
 
