@@ -69,6 +69,9 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 	const layout = "2006-01-02 03:04:05"
 	requestId := c.Locals("requestId")
 
+	resHeaders, _ := json.MarshalIndent(c.Response().Header, "", "  ")
+	reqHeaders, _ := json.MarshalIndent(c.Request().Header, "", "  ")
+
 	message := RequestLog{
 		Date:            time.Now().UTC().Format(layout),
 		RequestId:       fmt.Sprintf("%s", requestId),
@@ -77,8 +80,8 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 		Method:          c.Method(),
 		Path:            c.Path(),
 		PID:             strconv.Itoa(os.Getpid()),
-		ResponseHeaders: c.Response().Header.String(),
-		RequestHeaders:  c.Request().Header.String(),
+		ResponseHeaders: string(resHeaders),
+		RequestHeaders:  string(reqHeaders),
 	}
 	return message
 }
