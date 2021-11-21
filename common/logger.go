@@ -17,14 +17,16 @@ var logLineCount int = 0
 var logFileCount int = 1
 
 type RequestLog struct {
-	Date       string
-	PID        string
-	Level      string
-	RequestId  string
-	Error      *DawnError
-	StatusCode string
-	Method     string
-	Path       string
+	Date            string
+	PID             string
+	Level           string
+	RequestId       string
+	Error           *DawnError
+	StatusCode      string
+	Method          string
+	Path            string
+	RequestHeaders  fasthttp.RequestHeader
+	ResponseHeaders fasthttp.ResponseHeader
 }
 
 type Request struct {
@@ -68,13 +70,15 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 	requestId := c.Locals("requestId")
 
 	message := RequestLog{
-		Date:       time.Now().UTC().Format(layout),
-		RequestId:  fmt.Sprintf("%s", requestId),
-		Level:      "INFO",
-		StatusCode: strconv.Itoa(c.Response().StatusCode()),
-		Method:     c.Method(),
-		Path:       c.Path(),
-		PID:        strconv.Itoa(os.Getpid()),
+		Date:            time.Now().UTC().Format(layout),
+		RequestId:       fmt.Sprintf("%s", requestId),
+		Level:           "INFO",
+		StatusCode:      strconv.Itoa(c.Response().StatusCode()),
+		Method:          c.Method(),
+		Path:            c.Path(),
+		PID:             strconv.Itoa(os.Getpid()),
+		ResponseHeaders: c.Response().Header,
+		RequestHeaders:  c.Request().Header,
 	}
 	return message
 }
@@ -114,7 +118,7 @@ func LogRequest(message RequestLog) {
 	}
 
 	if _, err := os.Stat(txtLogPath); os.IsNotExist(err) {
-		os.MkdirAll(logFolder, 0700) // Create your file
+		os.MkdirAll(logFolder, 0700)
 	}
 
 	tempLogString, _ := json.MarshalIndent(message, "", "  ")
