@@ -25,8 +25,8 @@ type RequestLog struct {
 	StatusCode      string
 	Method          string
 	Path            string
-	RequestHeaders  string
-	ResponseHeaders string
+	RequestHeaders  fasthttp.RequestHeader
+	ResponseHeaders fasthttp.ResponseHeader
 }
 
 type Request struct {
@@ -69,8 +69,11 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 	const layout = "2006-01-02 03:04:05"
 	requestId := c.Locals("requestId")
 
-	resHeaders, _ := json.MarshalIndent(c.Response().Header, "", "  ")
-	reqHeaders, _ := json.MarshalIndent(c.Request().Header, "", "  ")
+	var resHeaders fasthttp.ResponseHeader
+	var reqHeaders fasthttp.RequestHeader
+
+	c.Request().Header.CopyTo(&reqHeaders)
+	c.Response().Header.CopyTo(&resHeaders)
 
 	message := RequestLog{
 		Date:            time.Now().UTC().Format(layout),
@@ -80,8 +83,8 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 		Method:          c.Method(),
 		Path:            c.Path(),
 		PID:             strconv.Itoa(os.Getpid()),
-		ResponseHeaders: string(resHeaders),
-		RequestHeaders:  string(reqHeaders),
+		ResponseHeaders: resHeaders,
+		RequestHeaders:  reqHeaders,
 	}
 	return message
 }
