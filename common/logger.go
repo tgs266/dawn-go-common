@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -104,6 +105,27 @@ func writeToFile(message string, file string) {
 
 	if _, err = f.WriteString(message + "\n"); err != nil {
 		panic(err)
+	}
+}
+
+func ClearLogFolder() {
+	logFolder := ""
+
+	if viper.GetViper().ConfigFileUsed() == "local" {
+		logFolder = ""
+	} else {
+		hostname, _ := os.Hostname()
+		logFolder = "/var/log/" + hostname + "/"
+	}
+
+	files, err := filepath.Glob(logFolder + "*-log-*.log")
+	if err != nil {
+		panic(err)
+	}
+	for _, f := range files {
+		if err := os.Remove(f); err != nil {
+			panic(err)
+		}
 	}
 }
 
