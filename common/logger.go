@@ -18,6 +18,7 @@ var logLineCount int = 0
 var logFileCount int = 1
 
 type RequestLog struct {
+	ServiceName     string
 	Date            string
 	PID             string
 	Level           string
@@ -81,6 +82,7 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 	})
 
 	message := RequestLog{
+		ServiceName:     viper.GetString("app.name"),
 		Date:            time.Now().UTC().Format(layout),
 		RequestId:       fmt.Sprintf("%s", requestId),
 		Level:           "INFO",
