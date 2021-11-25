@@ -168,7 +168,7 @@ func LogRequest(message RequestLog) {
 	writeToFile(txtLogString, txtLogPath)
 
 	logLineCount += 1
-	if logLineCount > 100 {
+	if logLineCount > 1000 {
 		logFileCount += 1
 		logLineCount = 1
 	}
