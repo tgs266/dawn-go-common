@@ -23,6 +23,7 @@ type User struct {
 	Email string `bson:"email"`
 	Salt  string `bson:"salt"`
 	Hash  []byte `bson:"hash"`
+	Admin bool   `bson:"admin"`
 
 	LastLoggedIn time.Time `bson:"last_logged_in"`
 
