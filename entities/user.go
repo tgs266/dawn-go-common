@@ -1,4 +1,4 @@
-package sharedentities
+package entities
 
 import "time"
 
