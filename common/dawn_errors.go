@@ -63,7 +63,11 @@ func (err *DawnError) AddLogDetails(logDetails string) *DawnError {
 }
 
 func (err *DawnError) PutDetail(key string, value string) *DawnError {
-	err.Details[key] = value
+	if err.Details == nil || len(err.Details) == 0 {
+		err.Details = map[string]string{key: value}
+	} else {
+		err.Details[key] = value
+	}
 	return err
 }
 
