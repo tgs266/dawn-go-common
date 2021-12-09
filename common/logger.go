@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gobwas/glob"
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
 	"github.com/valyala/fasthttp"
@@ -190,19 +189,19 @@ func FiberLogger() fiber.Handler {
 			message.Error = dawnError
 		}
 
-		if set := viper.IsSet("logging.ignore"); set {
-			ignores := viper.GetStringSlice("logging.ignore")
-			matched := false
-			for _, str := range ignores {
-				g := glob.MustCompile(str)
-				matched = g.Match(c.Path()) || matched
-			}
-			if !matched {
-				LogRequest(message)
-			}
-		} else {
-			LogRequest(message)
-		}
+		// if set := viper.IsSet("logging.ignore"); set {
+		// 	ignores := viper.GetStringSlice("logging.ignore")
+		// 	matched := false
+		// 	for _, str := range ignores {
+		// 		g := glob.MustCompile(str)
+		// 		matched = g.Match(c.Path()) || matched
+		// 	}
+		// 	if !matched {
+		// 		LogRequest(message)
+		// 	}
+		// } else {
+		LogRequest(message)
+		// }
 
 		if chainErr != nil {
 			if err := errHandler(c, chainErr); err != nil {
