@@ -19,6 +19,7 @@ type Location struct {
 
 type User struct {
 	ID    string `bson:"_id"`
+	JWT    string `bson:"jwt"`
 	Name  string `bson:"name"`
 	Email string `bson:"email"`
 	Salt  string `bson:"salt"`
