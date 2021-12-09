@@ -29,5 +29,5 @@ type User struct {
 	LastTokenRefresh time.Time `bson:"last_token_refresh"`
 
 	DefaultLocation  Location   `bson:"default_location"`
-	FavoriteLocations []Location `bson:"favorite_locations"
+	FavoriteLocations []Location `bson:"favorite_locations"`
 }
