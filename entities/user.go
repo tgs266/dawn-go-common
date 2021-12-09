@@ -26,7 +26,8 @@ type User struct {
 	Admin bool   `bson:"admin"`
 
 	LastLoggedIn time.Time `bson:"last_logged_in"`
+	LastTokenRefresh time.Time `bson:"last_token_refresh"`
 
 	DefaultLocation   Location   `bson:"default_location"`
-	FavoriteLocations []Location `bson:"favorite_locations"`
+	avoriteLocations []Location `bson:"favorite_locations"`
 }
