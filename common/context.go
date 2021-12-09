@@ -49,7 +49,7 @@ func (ctx DawnCtx) ValidateToUser(userId string) DawnCtx {
 	return ctx
 }
 
-func (ctx DawnCtx) ValidateToAdmin(userId string) DawnCtx {
+func (ctx DawnCtx) ValidateToAdmin() DawnCtx {
 	if viper.GetBool("app.auth") {
 		admin, _ := strconv.ParseBool(string(ctx.FiberCtx.Request().Header.Peek("admin")))
 		if !admin {
