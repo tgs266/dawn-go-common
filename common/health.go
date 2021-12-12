@@ -1,14 +1,12 @@
 package common
 
 import (
-	"context"
 	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
 	"gitlab.cs.umd.edu/dawn/dawn-go-common/messaging"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 type HealthStruct struct {
@@ -29,9 +27,12 @@ func GetHealthStruct() HealthStruct {
 	dbstatus := ""
 	if viper.IsSet("db.uri") {
 		dbstatus = "up"
-		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-		defer cancel()
-		if err := Conn.Ping(ctx, readpref.Primary()); err != nil {
+		session, err := CreateHealthDBSession()
+		defer session.Close()
+		if err != nil {
+			status = "unavailable"
+			dbstatus = "down"
+		} else if err := session.Ping(); err != nil {
 			status = "unavailable"
 			dbstatus = "down"
 		} else {
