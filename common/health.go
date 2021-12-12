@@ -1,7 +1,6 @@
 package common
 
 import (
-	"fmt"
 	"os"
 	"time"
 
@@ -29,7 +28,6 @@ func GetHealthStruct() HealthStruct {
 	if viper.IsSet("db.uri") {
 		dbstatus = "up"
 		session, err := CreateHealthDBSession()
-		fmt.Println(err)
 		if err != nil {
 			status = "unavailable"
 			dbstatus = "down"

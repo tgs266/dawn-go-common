@@ -84,7 +84,7 @@ func (session *DBSession) Collection(colName string) *mongo.Collection {
 }
 
 func (session *DBSession) Ping() error {
-	if session.DB != nil {
+	if session.Client != nil {
 		return session.Client.Ping(session.Ctx, readpref.Primary())
 	}
 	return INTERNAL_SERVER_STANDARD_ERROR
