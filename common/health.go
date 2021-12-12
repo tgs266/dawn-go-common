@@ -28,7 +28,6 @@ func GetHealthStruct() HealthStruct {
 	if viper.IsSet("db.uri") {
 		dbstatus = "up"
 		session, err := CreateHealthDBSession()
-		defer session.Close()
 		if err != nil {
 			status = "unavailable"
 			dbstatus = "down"
@@ -38,6 +37,7 @@ func GetHealthStruct() HealthStruct {
 		} else {
 			dbstatus = "up"
 		}
+		session.Close()
 	}
 	return HealthStruct{
 		Status:   status,
