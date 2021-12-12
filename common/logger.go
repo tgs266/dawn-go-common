@@ -155,6 +155,10 @@ func LogRequest(message RequestLog) {
 		os.MkdirAll(logFolder, 0700)
 	}
 
+	if _, err := os.Stat(jsonLogPath); os.IsNotExist(err) {
+		os.MkdirAll(logFolder, 0700)
+	}
+
 	tempLogString, _ := json.Marshal(message)
 	jsonLogString := string(tempLogString)
 	txtLogString := fmt.Sprintf("[%s] %s %s %s %s - %s %s", fmt.Sprintf(LEVEL_FORMAT_STRING, message.Level), message.Date, message.PID, message.RequestId, message.StatusCode, message.Method, message.Path)
