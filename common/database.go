@@ -50,6 +50,7 @@ func CreateDBSession(dbName string) (*DBSession, error) {
 		ConnString: connString,
 	}
 	err := session.Connect()
+
 	return session, err
 }
 

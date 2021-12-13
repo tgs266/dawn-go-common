@@ -9,6 +9,8 @@ import (
 	"gitlab.cs.umd.edu/dawn/dawn-go-common/messaging"
 )
 
+var HealthSession *DBSession
+
 type HealthStruct struct {
 	Status   string `json:"status"`
 	DBStatus string `json:"dbstatus"`
@@ -27,17 +29,15 @@ func GetHealthStruct() HealthStruct {
 	dbstatus := ""
 	if viper.IsSet("db.uri") {
 		dbstatus = "up"
-		session, err := CreateHealthDBSession()
-		if err != nil {
-			status = "unavailable"
-			dbstatus = "down"
-		} else if err := session.Ping(); err != nil {
+		if HealthSession == nil {
+			HealthSession, _ = CreateHealthDBSession()
+		}
+		if err := HealthSession.Ping(); err != nil {
 			status = "unavailable"
 			dbstatus = "down"
 		} else {
 			dbstatus = "up"
 		}
-		session.Close()
 	}
 	return HealthStruct{
 		Status:   status,
