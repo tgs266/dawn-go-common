@@ -63,8 +63,8 @@ func (ctx DawnCtx) GetRole() int {
 
 func (ctx DawnCtx) ValidateToAdmin() DawnCtx {
 	if viper.GetBool("app.auth") {
-		role := string(ctx.FiberCtx.Request().Header.Peek("role"))
-		if role != "ADMIN" && role != "SUPER" {
+		role := ctx.GetRole()
+		if role < entities.ROLES["ADMIN"] {
 			panic(UNAUTHORIZED_TO_USER_ID)
 		}
 	}
@@ -73,8 +73,8 @@ func (ctx DawnCtx) ValidateToAdmin() DawnCtx {
 
 func (ctx DawnCtx) ValidateToSuper() DawnCtx {
 	if viper.GetBool("app.auth") {
-		role := string(ctx.FiberCtx.Request().Header.Peek("role"))
-		if role != "SUPER" {
+		role := ctx.GetRole()
+		if role != entities.ROLES["SUPER"] {
 			panic(UNAUTHORIZED_TO_USER_ID)
 		}
 	}
