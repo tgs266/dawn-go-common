@@ -55,8 +55,18 @@ func (ctx DawnCtx) GetJWT() string {
 
 func (ctx DawnCtx) ValidateToAdmin() DawnCtx {
 	if viper.GetBool("app.auth") {
-		admin, _ := strconv.ParseBool(string(ctx.FiberCtx.Request().Header.Peek("admin")))
-		if !admin {
+		role := string(ctx.FiberCtx.Request().Header.Peek("role"))
+		if role != "ADMIN" && role != "SUPER" {
+			panic(UNAUTHORIZED_TO_USER_ID)
+		}
+	}
+	return ctx
+}
+
+func (ctx DawnCtx) ValidateToSuper() DawnCtx {
+	if viper.GetBool("app.auth") {
+		role := string(ctx.FiberCtx.Request().Header.Peek("role"))
+		if role != "SUPER" {
 			panic(UNAUTHORIZED_TO_USER_ID)
 		}
 	}
