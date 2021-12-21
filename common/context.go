@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
+	"gitlab.cs.umd.edu/dawn/dawn-go-common/entities"
 )
 
 type DawnCtx struct {
@@ -51,6 +52,13 @@ func (ctx DawnCtx) ValidateToUser(userId string) DawnCtx {
 
 func (ctx DawnCtx) GetJWT() string {
 	return string(ctx.FiberCtx.Request().Header.Peek("Authorization"))
+}
+
+func (ctx DawnCtx) GetRole() int {
+	if string(ctx.FiberCtx.Request().Header.Peek("role")) != "" {
+		return entities.ROLES[string(ctx.FiberCtx.Request().Header.Peek("role"))]
+	}
+	return -1
 }
 
 func (ctx DawnCtx) ValidateToAdmin() DawnCtx {
