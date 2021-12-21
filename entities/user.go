@@ -17,10 +17,16 @@ type Location struct {
 	DisplayName string  `bson:"display_name"`
 }
 
-var ROLES = []string{
-	"SUPER",
-	"ADMIN",
-	"USER",
+var ROLE_INTS = []int{0, 1, 2}
+var ROLES = map[string]int{
+	"USER":  0,
+	"ADMIN": 1,
+	"SUPER": 2,
+}
+var ROLES_REV = map[int]string{
+	0: "USER",
+	1: "ADMIN",
+	2: "SUPER",
 }
 
 type User struct {
@@ -30,7 +36,7 @@ type User struct {
 	Salt  string `bson:"salt"`
 	Hash  []byte `bson:"hash"`
 	Admin bool   `bson:"admin"`
-	Role  string `bson:"admin"`
+	Role  int `bson:"role"`
 
 	LastLoggedIn     time.Time `bson:"last_logged_in"`
 	LastTokenRefresh time.Time `bson:"last_token_refresh"`
