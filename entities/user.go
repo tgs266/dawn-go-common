@@ -17,6 +17,12 @@ type Location struct {
 	DisplayName string  `bson:"display_name"`
 }
 
+var ROLES = []string{
+	"SUPER",
+	"ADMIN",
+	"USER",
+}
+
 type User struct {
 	ID    string `bson:"_id"`
 	Name  string `bson:"name"`
@@ -24,10 +30,11 @@ type User struct {
 	Salt  string `bson:"salt"`
 	Hash  []byte `bson:"hash"`
 	Admin bool   `bson:"admin"`
+	Role  string `bson:"admin"`
 
 	LastLoggedIn     time.Time `bson:"last_logged_in"`
 	LastTokenRefresh time.Time `bson:"last_token_refresh"`
 
-	DefaultLocation  Location   `bson:"default_location"`
+	DefaultLocation   Location   `bson:"default_location"`
 	FavoriteLocations []Location `bson:"favorite_locations"`
 }
