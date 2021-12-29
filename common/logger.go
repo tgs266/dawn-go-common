@@ -29,6 +29,7 @@ type RequestLog struct {
 	Path            string
 	RequestHeaders  map[string]string
 	ResponseHeaders map[string]string
+	Hostname        string
 }
 
 type Request struct {
@@ -81,6 +82,8 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 		resHeaders[string(k)] = string(v)
 	})
 
+	hostname, _ := os.Hostname()
+
 	message := RequestLog{
 		ServiceName:     viper.GetString("app.name"),
 		Date:            time.Now().UTC().Format(layout),
@@ -92,6 +95,7 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 		PID:             strconv.Itoa(os.Getpid()),
 		ResponseHeaders: resHeaders,
 		RequestHeaders:  reqHeaders,
+		Hostname:        hostname,
 	}
 	return message
 }
