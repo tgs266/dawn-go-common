@@ -30,6 +30,7 @@ type RequestLog struct {
 	RequestHeaders  map[string]string
 	ResponseHeaders map[string]string
 	Hostname        string
+	UserID          string
 }
 
 type Request struct {
@@ -96,6 +97,7 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 		ResponseHeaders: resHeaders,
 		RequestHeaders:  reqHeaders,
 		Hostname:        hostname,
+		UserID:          string(c.Request().Header.Peek("user_id")),
 	}
 	return message
 }
