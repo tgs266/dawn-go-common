@@ -87,7 +87,7 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 
 	message := RequestLog{
 		ServiceName:     viper.GetString("app.name"),
-		Date:            time.Now().UTC().Format(layout),
+		Date:            time.Now().Format(layout),
 		RequestId:       fmt.Sprintf("%s", requestId),
 		Level:           "INFO",
 		StatusCode:      strconv.Itoa(c.Response().StatusCode()),
