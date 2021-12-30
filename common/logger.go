@@ -194,7 +194,6 @@ func FiberLogger() fiber.Handler {
 		chainErr := c.Next()
 
 		message := BuildMessage(c)
-		fmt.Println(message)
 
 		if chainErr != nil {
 			dawnError := ErrorHandler(c, chainErr)
