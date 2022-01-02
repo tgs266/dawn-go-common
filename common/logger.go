@@ -63,7 +63,6 @@ func buildMessageLog(c *fiber.Ctx, message string) MessageLog {
 func cleanRequest(c *fiber.Ctx, r *fasthttp.Request) Request {
 	headers := fasthttp.AcquireRequest().Header
 	r.Header.CopyTo(&headers)
-	fmt.Println(headers.String())
 	return Request{
 		Headers: headers,
 	}
