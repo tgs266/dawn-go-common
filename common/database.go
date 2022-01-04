@@ -77,7 +77,7 @@ func (session *DBSession) Collection(colName string) *mongo.Collection {
 		return session.DB.Collection(colName)
 	} else {
 		if err := session.Connect(); err != nil {
-			panic(INTERNAL_SERVER_STANDARD_ERROR.PutDetail("reason", err.Error())
+			panic(INTERNAL_SERVER_STANDARD_ERROR.PutDetail("reason", err.Error()))
 		} else {
 			return session.DB.Collection(colName)
 		}
