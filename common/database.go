@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -43,6 +44,7 @@ func CreateHealthDBSession() (*DBSession, error) {
 
 func CreateDBSession(dbName string) (*DBSession, error) {
 	connString := viper.GetString("db.uri") + viper.GetString("db.database")
+	fmt.Println(connString)
 
 	session := &DBSession{
 		Ctx:        context.Background(),
