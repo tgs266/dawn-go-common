@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gobwas/glob"
@@ -141,7 +142,7 @@ func LogRequest(message RequestLog) {
 	jsonLogPath := ""
 	logFolder := ""
 
-	if viper.GetViper().ConfigFileUsed() == "local" {
+	if strings.Contains(viper.GetViper().ConfigFileUsed(), "local") {
 		logFolder = ""
 		txtLogPath = "text-log-" + strconv.Itoa(logFileCount) + ".log"
 		jsonLogPath = "json-log-" + strconv.Itoa(logFileCount) + ".log"
