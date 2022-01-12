@@ -50,11 +50,10 @@ type MessageLog struct {
 var LEVEL_FORMAT_STRING string = "%-5s"
 
 func buildMessageLog(c *fiber.Ctx, message string) MessageLog {
-	const layout = "2006-01-02 03:04:05"
 	requestId := c.Locals("requestId")
 
 	messageLog := MessageLog{
-		Date:      time.Now().UTC().Format(layout),
+		Date:      time.Now().UTC().Format(time.RFC3339),
 		RequestId: fmt.Sprintf("%s", requestId),
 		PID:       strconv.Itoa(os.Getpid()),
 		Message:   message,
@@ -71,7 +70,6 @@ func cleanRequest(c *fiber.Ctx, r *fasthttp.Request) Request {
 }
 
 func BuildMessage(c *fiber.Ctx) RequestLog {
-	const layout = "2006-01-02 03:04:05"
 	requestId := c.Locals("requestId")
 	duration := c.Locals("duration").(time.Duration)
 
@@ -89,7 +87,7 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 
 	message := RequestLog{
 		ServiceName:     viper.GetString("app.name"),
-		Date:            time.Now().Format(layout),
+		Date:            time.Now().Format(time.RFC3339),
 		RequestId:       fmt.Sprintf("%s", requestId),
 		Level:           "INFO",
 		StatusCode:      strconv.Itoa(c.Response().StatusCode()),
