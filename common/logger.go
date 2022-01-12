@@ -70,9 +70,10 @@ func cleanRequest(c *fiber.Ctx, r *fasthttp.Request) Request {
 	}
 }
 
-func BuildMessage(c *fiber.Ctx, duration time.Duration) RequestLog {
+func BuildMessage(c *fiber.Ctx) RequestLog {
 	const layout = "2006-01-02 03:04:05"
 	requestId := c.Locals("requestId")
+	duration := c.Locals("duration").(time.Duration)
 
 	reqHeaders := map[string]string{}
 	c.Request().Header.VisitAll(func(k, v []byte) {
@@ -196,8 +197,9 @@ func FiberLogger() fiber.Handler {
 		now := time.Now()
 		chainErr := c.Next()
 		duration := time.Since(now)
+		c.Locals("duration", duration)
 
-		message := BuildMessage(c, duration)
+		message := BuildMessage(c)
 
 		if chainErr != nil {
 			dawnError := ErrorHandler(c, chainErr)
