@@ -32,7 +32,7 @@ type RequestLog struct {
 	ResponseHeaders map[string]string
 	Hostname        string
 	UserID          string
-	Duration        float64
+	// Duration        float64
 }
 
 type Request struct {
@@ -71,7 +71,7 @@ func cleanRequest(c *fiber.Ctx, r *fasthttp.Request) Request {
 
 func BuildMessage(c *fiber.Ctx) RequestLog {
 	requestId := c.Locals("requestId")
-	duration := c.Locals("duration").(time.Duration)
+	// duration := c.Locals("duration").(time.Duration)
 
 	reqHeaders := map[string]string{}
 	c.Request().Header.VisitAll(func(k, v []byte) {
@@ -98,7 +98,7 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 		RequestHeaders:  reqHeaders,
 		Hostname:        hostname,
 		UserID:          string(c.Request().Header.Peek("user_id")),
-		Duration:        float64(duration.Nanoseconds()) / 1000000,
+		// Duration:        float64(duration.Nanoseconds()) / 1000000,
 	}
 	return message
 }
