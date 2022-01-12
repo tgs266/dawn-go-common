@@ -36,10 +36,11 @@ type User struct {
 	Salt  string `bson:"salt"`
 	Hash  []byte `bson:"hash"`
 	Admin bool   `bson:"admin"`
-	Role  int `bson:"role"`
+	Role  int    `bson:"role"`
 
 	LastLoggedIn     time.Time `bson:"last_logged_in"`
 	LastTokenRefresh time.Time `bson:"last_token_refresh"`
+	CreatedAt        time.Time `bson:"created_at"`
 
 	DefaultLocation   Location   `bson:"default_location"`
 	FavoriteLocations []Location `bson:"favorite_locations"`
