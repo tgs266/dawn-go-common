@@ -32,6 +32,7 @@ type RequestLog struct {
 	ResponseHeaders map[string]string
 	Hostname        string
 	UserID          string
+	Duration        float64
 }
 
 type Request struct {
@@ -69,7 +70,7 @@ func cleanRequest(c *fiber.Ctx, r *fasthttp.Request) Request {
 	}
 }
 
-func BuildMessage(c *fiber.Ctx) RequestLog {
+func BuildMessage(c *fiber.Ctx, duration time.Duration) RequestLog {
 	const layout = "2006-01-02 03:04:05"
 	requestId := c.Locals("requestId")
 
@@ -98,6 +99,7 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 		RequestHeaders:  reqHeaders,
 		Hostname:        hostname,
 		UserID:          string(c.Request().Header.Peek("user_id")),
+		Duration:        float64(duration.Nanoseconds()) / 1000000,
 	}
 	return message
 }
@@ -191,9 +193,11 @@ func FiberLogger() fiber.Handler {
 
 	return func(c *fiber.Ctx) error {
 		errHandler := c.App().Config().ErrorHandler
+		now := time.Now()
 		chainErr := c.Next()
+		duration := time.Since(now)
 
-		message := BuildMessage(c)
+		message := BuildMessage(c, duration)
 
 		if chainErr != nil {
 			dawnError := ErrorHandler(c, chainErr)
