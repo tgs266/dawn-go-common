@@ -75,8 +75,6 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 	proxy := c.Locals("proxy")
 	proxyBool := false
 
-	// duration := c.Locals("duration").(time.Duration)
-
 	reqHeaders := map[string]string{}
 	c.Request().Header.VisitAll(func(k, v []byte) {
 		reqHeaders[string(k)] = string(v)
@@ -92,8 +90,6 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 	if proxy != nil {
 		proxyBool = true
 	}
-
-	fmt.Println(proxyBool, c.Path())
 
 	message := RequestLog{
 		ServiceName:     viper.GetString("app.name"),
