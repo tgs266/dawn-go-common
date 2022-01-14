@@ -95,7 +95,6 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 	if start != nil {
 		durationFloat = float64(time.Since(start.(time.Time)).Nanoseconds()) / 1000000
 	}
-	fmt.Println(durationFloat)
 
 	message := RequestLog{
 		ServiceName:     viper.GetString("app.name"),
