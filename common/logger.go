@@ -88,6 +88,8 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 
 	hostname, _ := os.Hostname()
 
+	fmt.Println(proxy)
+
 	message := RequestLog{
 		ServiceName:     viper.GetString("app.name"),
 		Date:            time.Now().Format(time.RFC3339),
