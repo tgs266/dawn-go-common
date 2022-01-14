@@ -34,6 +34,7 @@ type RequestLog struct {
 	UserID          string
 	Proxy           bool
 	Duration        float64
+	Management      bool
 }
 
 type Request struct {
@@ -96,6 +97,13 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 		durationFloat = float64(time.Since(start.(time.Time)).Nanoseconds()) / 1000000
 	}
 
+	management := false
+	if len(c.Request().Header.Peek("management")) != 0 {
+		management = true
+	}
+
+	fmt.Println(management)
+
 	message := RequestLog{
 		ServiceName:     viper.GetString("app.name"),
 		Date:            time.Now().Format(time.RFC3339),
@@ -111,6 +119,7 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 		UserID:          string(c.Request().Header.Peek("user_id")),
 		Proxy:           proxyBool,
 		Duration:        durationFloat,
+		Management:      management,
 	}
 	return message
 }
