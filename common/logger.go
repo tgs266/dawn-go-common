@@ -102,8 +102,6 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 		management = true
 	}
 
-	fmt.Println(management)
-
 	message := RequestLog{
 		ServiceName:     viper.GetString("app.name"),
 		Date:            time.Now().Format(time.RFC3339),
