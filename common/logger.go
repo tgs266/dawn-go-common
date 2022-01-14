@@ -33,7 +33,7 @@ type RequestLog struct {
 	Hostname        string
 	UserID          string
 	Proxy           bool
-	// Duration        float64
+	Duration        float64
 }
 
 type Request struct {
@@ -74,8 +74,8 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 	requestId := c.Locals("requestId")
 	proxy := c.Locals("proxy")
 	duration := c.Locals("duration")
-	fmt.Printf("duration: %v\n", duration)
 	proxyBool := false
+	durationFloat := -1.0
 
 	reqHeaders := map[string]string{}
 	c.Request().Header.VisitAll(func(k, v []byte) {
@@ -92,6 +92,9 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 	if proxy != nil {
 		proxyBool = true
 	}
+	if duration != nil {
+		durationFloat = float64(duration.(time.Duration).Nanoseconds()) / 1000000
+	}
 
 	message := RequestLog{
 		ServiceName:     viper.GetString("app.name"),
@@ -107,7 +110,7 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 		Hostname:        hostname,
 		UserID:          string(c.Request().Header.Peek("user_id")),
 		Proxy:           proxyBool,
-		// Duration:        float64(duration.Nanoseconds()) / 1000000,
+		Duration:        durationFloat,
 	}
 	return message
 }
