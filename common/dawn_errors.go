@@ -133,6 +133,7 @@ func DawnErrorHandler(ctx *fiber.Ctx, err error) error {
 
 	logMessage := BuildMessage(ctx)
 	logMessage.Error = err.(*DawnError)
+	logMessage.Level = "ERROR"
 	logMessage.StatusCode = strconv.Itoa(code)
 
 	LogRequest(logMessage)
