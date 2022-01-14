@@ -72,7 +72,8 @@ func cleanRequest(c *fiber.Ctx, r *fasthttp.Request) Request {
 
 func BuildMessage(c *fiber.Ctx) RequestLog {
 	requestId := c.Locals("requestId")
-	proxy := c.Locals("proxy").(bool)
+	proxy := c.Locals("proxy")
+	proxyBool := false
 
 	// duration := c.Locals("duration").(time.Duration)
 
@@ -88,7 +89,11 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 
 	hostname, _ := os.Hostname()
 
-	fmt.Println(proxy)
+	if proxy != nil {
+		proxyBool = true
+	}
+
+	fmt.Println(proxyBool, c.Path())
 
 	message := RequestLog{
 		ServiceName:     viper.GetString("app.name"),
@@ -103,7 +108,7 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 		RequestHeaders:  reqHeaders,
 		Hostname:        hostname,
 		UserID:          string(c.Request().Header.Peek("user_id")),
-		Proxy:           proxy,
+		Proxy:           proxyBool,
 		// Duration:        float64(duration.Nanoseconds()) / 1000000,
 	}
 	return message
