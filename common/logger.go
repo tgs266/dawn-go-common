@@ -98,7 +98,6 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 	}
 
 	management := false
-	fmt.Println(c.Request().Header.Peek("Management"))
 	if len(c.Request().Header.Peek("Management")) != 0 && len(c.Request().Header.Peek("management")) != 0 {
 		management = false
 	} else {
