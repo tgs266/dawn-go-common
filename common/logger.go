@@ -73,6 +73,8 @@ func cleanRequest(c *fiber.Ctx, r *fasthttp.Request) Request {
 func BuildMessage(c *fiber.Ctx) RequestLog {
 	requestId := c.Locals("requestId")
 	proxy := c.Locals("proxy")
+	duration := c.Locals("duration")
+	fmt.Printf("duration: %v\n", duration)
 	proxyBool := false
 
 	reqHeaders := map[string]string{}
