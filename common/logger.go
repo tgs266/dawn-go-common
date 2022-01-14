@@ -73,7 +73,7 @@ func cleanRequest(c *fiber.Ctx, r *fasthttp.Request) Request {
 func BuildMessage(c *fiber.Ctx) RequestLog {
 	requestId := c.Locals("requestId")
 	proxy := c.Locals("proxy")
-	duration := c.Locals("duration")
+	start := c.Locals("start")
 	proxyBool := false
 	durationFloat := -1.0
 
@@ -92,8 +92,8 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 	if proxy != nil {
 		proxyBool = true
 	}
-	if duration != nil {
-		durationFloat = float64(duration.(time.Duration).Nanoseconds()) / 1000000
+	if start != nil {
+		durationFloat = float64(time.Since(start.(time.Time)).Nanoseconds()) / 1000000
 	}
 
 	message := RequestLog{
@@ -205,9 +205,8 @@ func FiberLogger() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		errHandler := c.App().Config().ErrorHandler
 		now := time.Now()
+		c.Locals("start", now)
 		chainErr := c.Next()
-		duration := time.Since(now)
-		c.Locals("duration", duration)
 
 		message := BuildMessage(c)
 
