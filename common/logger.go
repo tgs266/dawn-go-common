@@ -34,7 +34,8 @@ type RequestLog struct {
 	UserID          string
 	Proxy           bool
 	Duration        float64
-	Management      bool
+	Client          string
+	DevEnv          bool
 }
 
 type Request struct {
@@ -97,9 +98,17 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 		durationFloat = float64(time.Since(start.(time.Time)).Nanoseconds()) / 1000000
 	}
 
-	management := false
-	if len(c.Request().Header.Peek("Management")) != 0 || len(c.Request().Header.Peek("management")) != 0 {
-		management = true
+	client := "other"
+	if len(c.Request().Header.Peek("dawn-client")) != 0 {
+		client = string(c.Request().Header.Peek("dawn-client"))
+	} else if len(c.Request().Header.Peek("Dawn-Client")) != 0 {
+		client = string(c.Request().Header.Peek("Dawn-Client"))
+	}
+
+	dev := false
+	devString := string(c.Request().Header.Peek("referer"))
+	if strings.Contains(devString, "localhost") || devString == "" {
+		dev = true
 	}
 
 	message := RequestLog{
@@ -117,7 +126,8 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 		UserID:          string(c.Request().Header.Peek("user_id")),
 		Proxy:           proxyBool,
 		Duration:        durationFloat,
-		Management:      management,
+		Client:          client,
+		DevEnv:          dev,
 	}
 	return message
 }
