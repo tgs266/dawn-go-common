@@ -19,7 +19,7 @@ type BaseError interface {
 }
 
 type DawnError struct {
-	StackTrace  interface{}       `json:"stack_trace"`
+	StackTrace  string            `json:"stack_trace"`
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
 	LogDetails  string            `json:"log_details"`
@@ -123,9 +123,9 @@ var INTERNAL_SERVER_STANDARD_ERROR = &DawnError{
 func DawnErrorHandler(ctx *fiber.Ctx, err error) error {
 	code := fiber.StatusInternalServerError
 
-	var stackTrace interface{}
+	stackTrace := ""
 	if ctx.Locals("stack_trace") != nil {
-		stackTrace = ctx.Locals("stack_trace")
+		stackTrace = fmt.Sprint(ctx.Locals("stack_trace"))
 	}
 
 	message := StandardError{Source: viper.GetString("app.name"), ErrorCode: "INTERNAL_SERVER",
