@@ -122,7 +122,7 @@ var INTERNAL_SERVER_STANDARD_ERROR = &DawnError{
 }
 
 func DawnErrorHandler(ctx *fiber.Ctx, err error) error {
-	fmt.Println(debug.Stack())
+	fmt.Println(string(debug.Stack()))
 	code := fiber.StatusInternalServerError
 	message := StandardError{Source: viper.GetString("app.name"), ErrorCode: "INTERNAL_SERVER",
 		Description: "Internal Server Error Occurred", Details: map[string]string{"RequestId": ""}}
