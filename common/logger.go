@@ -64,14 +64,6 @@ func buildMessageLog(c *fiber.Ctx, message string) MessageLog {
 	return messageLog
 }
 
-func cleanRequest(c *fiber.Ctx, r *fasthttp.Request) Request {
-	headers := fasthttp.AcquireRequest().Header
-	r.Header.CopyTo(&headers)
-	return Request{
-		Headers: headers,
-	}
-}
-
 func BuildMessage(c *fiber.Ctx) RequestLog {
 	requestId := c.Locals("requestId")
 	proxy := c.Locals("proxy")
