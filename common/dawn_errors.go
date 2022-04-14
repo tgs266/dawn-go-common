@@ -4,9 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"runtime/debug"
 	"strconv"
-
-	"github.com/go-errors/errors"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/prometheus/client_golang/prometheus"
@@ -56,9 +55,6 @@ func (err *DawnError) BuildStandardError(ctx *fiber.Ctx) StandardError {
 
 	for k, v := range err.Details {
 		details[k] = v
-	}
-	if err.baseErr != nil {
-		details["stack_trace"] = err.baseErr.(*errors.Error).ErrorStack()
 	}
 	return StandardError{Source: serviceName, ErrorCode: err.Name, Description: err.Description, Details: details}
 }
@@ -126,7 +122,7 @@ var INTERNAL_SERVER_STANDARD_ERROR = &DawnError{
 }
 
 func DawnErrorHandler(ctx *fiber.Ctx, err error) error {
-
+	fmt.Println(debug.Stack())
 	code := fiber.StatusInternalServerError
 	message := StandardError{Source: viper.GetString("app.name"), ErrorCode: "INTERNAL_SERVER",
 		Description: "Internal Server Error Occurred", Details: map[string]string{"RequestId": ""}}
