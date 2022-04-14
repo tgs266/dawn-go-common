@@ -57,7 +57,9 @@ func (err *DawnError) BuildStandardError(ctx *fiber.Ctx) StandardError {
 	for k, v := range err.Details {
 		details[k] = v
 	}
-	details["stack_trace"] = err.baseErr.(*errors.Error).ErrorStack()
+	if err.baseErr != nil {
+		details["stack_trace"] = err.baseErr.(*errors.Error).ErrorStack()
+	}
 	return StandardError{Source: serviceName, ErrorCode: err.Name, Description: err.Description, Details: details}
 }
 
