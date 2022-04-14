@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"runtime"
-	"runtime/debug"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -21,7 +19,7 @@ type BaseError interface {
 }
 
 type DawnError struct {
-	baseErr     error
+	StackTrace  string            `json:"-"`
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
 	LogDetails  string            `json:"log_details"`
@@ -84,7 +82,7 @@ func Build(err error) *DawnError {
 		Name:        "INTERNAL_SERVER_ERROR",
 		Description: err.Error(),
 		Code:        500,
-		baseErr:     err,
+		StackTrace:  "",
 	}
 }
 
@@ -123,11 +121,13 @@ var INTERNAL_SERVER_STANDARD_ERROR = &DawnError{
 }
 
 func DawnErrorHandler(ctx *fiber.Ctx, err error) error {
-	fmt.Println(string(debug.Stack()))
-	buf := make([]byte, 1024)
-	buf = buf[:runtime.Stack(buf, false)]
-	_, _ = os.Stderr.WriteString(fmt.Sprintf("panic: %v\n", buf))
 	code := fiber.StatusInternalServerError
+
+	stackTrace := ""
+	if ctx.Locals("stack_trace") != nil {
+		stackTrace = string(ctx.Locals("stack_trace").(string))
+	}
+
 	message := StandardError{Source: viper.GetString("app.name"), ErrorCode: "INTERNAL_SERVER",
 		Description: "Internal Server Error Occurred", Details: map[string]string{"RequestId": ""}}
 
@@ -137,6 +137,8 @@ func DawnErrorHandler(ctx *fiber.Ctx, err error) error {
 	} else {
 		err = Build(err)
 	}
+
+	err.(*DawnError).StackTrace = stackTrace
 
 	logMessage := BuildMessage(ctx)
 	logMessage.Error = err.(*DawnError)
