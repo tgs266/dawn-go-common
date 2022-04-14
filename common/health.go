@@ -6,7 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
-	"gitlab.cs.umd.edu/dawn/dawn-go-common/messaging"
+	"github.com/tgs266/dawn-go-common/messaging"
 )
 
 var HealthSession *DBSession

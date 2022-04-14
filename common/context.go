@@ -5,7 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
-	"gitlab.cs.umd.edu/dawn/dawn-go-common/entities"
+	"github.com/tgs266/dawn-go-common/entities"
 )
 
 type DawnCtx struct {
