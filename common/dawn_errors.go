@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"runtime"
 	"runtime/debug"
 	"strconv"
 
@@ -123,6 +124,9 @@ var INTERNAL_SERVER_STANDARD_ERROR = &DawnError{
 
 func DawnErrorHandler(ctx *fiber.Ctx, err error) error {
 	fmt.Println(string(debug.Stack()))
+	buf := make([]byte, 1024)
+	buf = buf[:runtime.Stack(buf, false)]
+	_, _ = os.Stderr.WriteString(fmt.Sprintf("panic: %v\n", buf))
 	code := fiber.StatusInternalServerError
 	message := StandardError{Source: viper.GetString("app.name"), ErrorCode: "INTERNAL_SERVER",
 		Description: "Internal Server Error Occurred", Details: map[string]string{"RequestId": ""}}
