@@ -6,6 +6,8 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/go-errors/errors"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -19,6 +21,7 @@ type BaseError interface {
 }
 
 type DawnError struct {
+	baseErr     error
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
 	LogDetails  string            `json:"log_details"`
@@ -54,6 +57,7 @@ func (err *DawnError) BuildStandardError(ctx *fiber.Ctx) StandardError {
 	for k, v := range err.Details {
 		details[k] = v
 	}
+	details["stack_trace"] = err.baseErr.(*errors.Error).ErrorStack()
 	return StandardError{Source: serviceName, ErrorCode: err.Name, Description: err.Description, Details: details}
 }
 
@@ -81,6 +85,7 @@ func Build(err error) *DawnError {
 		Name:        "INTERNAL_SERVER_ERROR",
 		Description: err.Error(),
 		Code:        500,
+		baseErr:     err,
 	}
 }
 
