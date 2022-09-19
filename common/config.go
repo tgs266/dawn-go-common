@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func GetConfig(path string) {
+func GetConfig(configName string) {
 	viper.SetConfigName("local")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
@@ -20,14 +20,15 @@ func GetConfig(path string) {
 		os.Exit(1)
 	}
 
-	viper.SetConfigName(path)
+	viper.SetConfigName(configName)
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath(path)
+	viper.AddConfigPath(".")
+	viper.AddConfigPath("./config/")
 	viper.AutomaticEnv()
 
 	err = viper.MergeInConfig()
 	if err != nil {
-		log.Fatalln("Env " + path + " not found")
+		log.Fatalln("Env " + configName + " not found")
 		os.Exit(1)
 	}
 }
