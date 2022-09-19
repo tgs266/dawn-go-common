@@ -86,6 +86,15 @@ func Build(err error) *DawnError {
 	}
 }
 
+func BuildUnknown() *DawnError {
+	return &DawnError{
+		Name:        "INTERNAL_SERVER_ERROR",
+		Description: "Unknown error occured",
+		Code:        500,
+		StackTrace:  "",
+	}
+}
+
 func (err *DawnError) LogJson(c *fiber.Ctx) {
 	jsonErrBytes, _ := json.Marshal(err)
 	fmt.Println(string(jsonErrBytes))
@@ -131,11 +140,16 @@ func DawnErrorHandler(ctx *fiber.Ctx, err error) error {
 	message := StandardError{Source: viper.GetString("app.name"), ErrorCode: "INTERNAL_SERVER",
 		Description: "Internal Server Error Occurred", Details: map[string]string{"RequestId": ""}}
 
-	if e, ok := err.(*DawnError); ok {
-		code = e.Code
-		message = err.(*DawnError).BuildStandardError(ctx)
+	if err != nil {
+		if e, ok := err.(*DawnError); ok {
+			code = e.Code
+			message = err.(*DawnError).BuildStandardError(ctx)
+		} else {
+			err = Build(err)
+		}
+
 	} else {
-		err = Build(err)
+		err = BuildUnknown()
 	}
 
 	err.(*DawnError).StackTrace = stackTrace
