@@ -29,14 +29,14 @@ func PublishHeartbeat(heartbeat Heartbeat) {
 	Publish("heartbeat", EncodeHeartbeat(heartbeat))
 }
 
-func GetHeartbeatMessageStream() <-chan amqp.Delivery {
-	Connect()
+func GetHeartbeatMessageStream(url string) <-chan amqp.Delivery {
+	Connect(url)
 	DeclareConsumerQueue("heartbeat")
 	return CreateMessageConsumer("heartbeat")
 }
 
-func TellAllToSendHeartbeats() {
-	Connect()
+func TellAllToSendHeartbeats(url string) {
+	Connect(url)
 	DeclarePublisherQueue("send_heartbeat")
 	q, _ := GetQueue("send_heartbeat")
 	q.Channel.ExchangeDeclare(

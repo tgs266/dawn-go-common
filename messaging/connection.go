@@ -8,7 +8,7 @@ var (
 	Conn *amqp.Connection
 )
 
-func Connect() error {
+func Connect(url string) error {
 	if Conn == nil {
 		conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
 		if err != nil {

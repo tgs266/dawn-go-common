@@ -58,7 +58,7 @@ func RegisterHealth(app *fiber.App) {
 var LastHeartbeat = messaging.Heartbeat{}
 
 func RegisterHeartbeatPublisher() {
-	messaging.Connect()
+	messaging.Connect(viper.GetString("app.messaging-uri"))
 	messaging.DeclarePublisherQueue("heartbeat")
 
 	PublishHeartbeat()
@@ -100,7 +100,7 @@ func ForcePublishHeartbeat() {
 func StartTellAllConsumer() {
 	hostname, _ := os.Hostname()
 
-	messaging.Connect()
+	messaging.Connect(viper.GetString("app.messaging-uri"))
 	messaging.DeclareConsumerQueue("send_heartbeat-" + hostname)
 	q, _ := messaging.GetQueue("send_heartbeat-" + hostname)
 	q.Bind("send_heartbeat_exchange")
@@ -116,7 +116,7 @@ func StartHeartbeatMessenger() {
 	ticker := time.NewTicker(10 * time.Second)
 	quit := make(chan struct{})
 
-	messaging.Connect()
+	messaging.Connect(viper.GetString("app.messaging-uri"))
 	messaging.DeclarePublisherQueue("heartbeat")
 
 	StartTellAllConsumer()
