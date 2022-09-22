@@ -19,23 +19,20 @@ var logLineCount int = 0
 var logFileCount int = 1
 
 type RequestLog struct {
-	ServiceName     string
-	Date            string
-	PID             string
-	Level           string
-	RequestId       string
-	Error           *DawnError
-	StatusCode      string
-	Method          string
-	Path            string
-	RequestHeaders  map[string]string
-	ResponseHeaders map[string]string
-	Hostname        string
-	UserID          string
-	Proxy           bool
-	Duration        float64
-	Client          string
-	DevEnv          bool
+	ServiceName string
+	Date        string
+	Level       string
+	RequestId   string
+	Error       *DawnError
+	StatusCode  string
+	Method      string
+	Path        string
+	Hostname    string
+	UserID      string
+	Proxy       bool
+	Duration    float64
+	Client      string
+	DevEnv      bool
 }
 
 type Request struct {
@@ -64,7 +61,7 @@ func buildMessageLog(c *fiber.Ctx, message string) MessageLog {
 	return messageLog
 }
 
-func BuildMessage(c *fiber.Ctx) RequestLog {
+func BuildMessage(c *fiber.Ctx) *RequestLog {
 	requestId := c.Locals("requestId")
 	proxy := c.Locals("proxy")
 	start := c.Locals("start")
@@ -103,23 +100,20 @@ func BuildMessage(c *fiber.Ctx) RequestLog {
 		dev = true
 	}
 
-	message := RequestLog{
-		ServiceName:     viper.GetString("app.name"),
-		Date:            time.Now().Format(time.RFC3339),
-		RequestId:       fmt.Sprintf("%s", requestId),
-		Level:           "INFO",
-		StatusCode:      strconv.Itoa(c.Response().StatusCode()),
-		Method:          c.Method(),
-		Path:            c.Path(),
-		PID:             strconv.Itoa(os.Getpid()),
-		ResponseHeaders: resHeaders,
-		RequestHeaders:  reqHeaders,
-		Hostname:        hostname,
-		UserID:          string(c.Request().Header.Peek("user_id")),
-		Proxy:           proxyBool,
-		Duration:        durationFloat,
-		Client:          client,
-		DevEnv:          dev,
+	message := &RequestLog{
+		ServiceName: viper.GetString("app.name"),
+		Date:        time.Now().Format(time.RFC3339),
+		RequestId:   fmt.Sprintf("%s", requestId),
+		Level:       "INFO",
+		StatusCode:  strconv.Itoa(c.Response().StatusCode()),
+		Method:      c.Method(),
+		Path:        c.Path(),
+		Hostname:    hostname,
+		UserID:      string(c.Request().Header.Peek("user_id")),
+		Proxy:       proxyBool,
+		Duration:    durationFloat,
+		Client:      client,
+		DevEnv:      dev,
 	}
 	return message
 }
@@ -159,7 +153,7 @@ func ClearLogFolder() {
 	}
 }
 
-func LogRequest(message RequestLog) {
+func LogRequest(message *RequestLog) {
 	txtLogPath := ""
 	jsonLogPath := ""
 	logFolder := ""
@@ -189,7 +183,7 @@ func LogRequest(message RequestLog) {
 
 	tempLogString, _ := json.Marshal(message)
 	jsonLogString := string(tempLogString)
-	txtLogString := fmt.Sprintf("[%s] %s %s %s %s - %s %s", fmt.Sprintf(LEVEL_FORMAT_STRING, message.Level), message.Date, message.PID, message.RequestId, message.StatusCode, message.Method, message.Path)
+	txtLogString := fmt.Sprintf("[%s] %s %s %s - %s %s", fmt.Sprintf(LEVEL_FORMAT_STRING, message.Level), message.Date, message.RequestId, message.StatusCode, message.Method, message.Path)
 	if message.Error != nil {
 		txtLogString += " - " + message.Error.Error()
 	}
@@ -197,14 +191,6 @@ func LogRequest(message RequestLog) {
 		fmt.Println(jsonLogString)
 	} else {
 		fmt.Println(txtLogString)
-	}
-	writeToFile(jsonLogString, jsonLogPath)
-	writeToFile(txtLogString, txtLogPath)
-
-	logLineCount += 1
-	if logLineCount > 1000 {
-		logFileCount += 1
-		logLineCount = 1
 	}
 
 }

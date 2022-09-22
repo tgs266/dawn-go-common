@@ -26,6 +26,7 @@ type DawnError struct {
 	Code        int               `json:"code"`
 	Details     map[string]string `json:"details"`
 	ServiceName string            `json:"service_name"`
+	Cause       error             `json:"cause"`
 }
 
 type StandardError struct {
@@ -83,6 +84,7 @@ func Build(err error) *DawnError {
 		Description: err.Error(),
 		Code:        500,
 		StackTrace:  "",
+		Cause:       err,
 	}
 }
 
@@ -92,6 +94,7 @@ func BuildUnknown() *DawnError {
 		Description: "Unknown error occured",
 		Code:        500,
 		StackTrace:  "",
+		Cause:       nil,
 	}
 }
 
