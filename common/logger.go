@@ -84,7 +84,7 @@ func BuildMessage(c *fiber.Ctx) *RequestLog {
 		Level:       "INFO",
 		StatusCode:  strconv.Itoa(c.Response().StatusCode()),
 		Method:      c.Method(),
-		Path:        c.Path(),
+		Path:        c.OriginalURL(),
 		UserID:      string(c.Request().Header.Peek("user_id")),
 		Duration:    durationFloat,
 	}
@@ -154,10 +154,11 @@ func LogRequest(message *RequestLog) {
 		os.MkdirAll(logFolder, 0700)
 	}
 
+	message.Message = fmt.Sprintf("[%s] %s %s", message.Method, message.StatusCode, message.Path)
+
 	if message.Error != nil {
-		message.Message = message.Error.Error()
+		message.Message += " - " + message.Error.Error()
 	} else {
-		message.Message = fmt.Sprintf("[%s] %s %s", message.Method, message.StatusCode, message.Method)
 	}
 
 	tempLogString, _ := json.Marshal(message)
