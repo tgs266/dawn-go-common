@@ -19,20 +19,17 @@ var logLineCount int = 0
 var logFileCount int = 1
 
 type RequestLog struct {
-	ServiceName string
-	Date        string
-	Level       string
-	RequestId   string
-	Error       *DawnError
-	StatusCode  string
-	Method      string
-	Path        string
-	Hostname    string
-	UserID      string
-	Proxy       bool
-	Duration    float64
-	Client      string
-	DevEnv      bool
+	ServiceName string     `json:"serviceName"`
+	Date        string     `json:"date"`
+	Level       string     `json:"level"`
+	RequestId   string     `json:"requestId"`
+	Error       *DawnError `json:"error"`
+	StatusCode  string     `json:"statusCode"`
+	Method      string     `json:"method"`
+	Path        string     `json:"path"`
+	UserID      string     `json:"userId"`
+	Duration    float64    `json:"duration"`
+	Message     string     `json:"message"`
 }
 
 type Request struct {
@@ -63,9 +60,7 @@ func buildMessageLog(c *fiber.Ctx, message string) MessageLog {
 
 func BuildMessage(c *fiber.Ctx) *RequestLog {
 	requestId := c.Locals("requestId")
-	proxy := c.Locals("proxy")
 	start := c.Locals("start")
-	proxyBool := false
 	durationFloat := -1.0
 
 	reqHeaders := map[string]string{}
@@ -78,26 +73,8 @@ func BuildMessage(c *fiber.Ctx) *RequestLog {
 		resHeaders[string(k)] = string(v)
 	})
 
-	hostname, _ := os.Hostname()
-
-	if proxy != nil {
-		proxyBool = true
-	}
 	if start != nil {
 		durationFloat = float64(time.Since(start.(time.Time)).Nanoseconds()) / 1000000
-	}
-
-	client := "other"
-	if len(c.Request().Header.Peek("dawn-client")) != 0 {
-		client = string(c.Request().Header.Peek("dawn-client"))
-	} else if len(c.Request().Header.Peek("Dawn-Client")) != 0 {
-		client = string(c.Request().Header.Peek("Dawn-Client"))
-	}
-
-	dev := false
-	devString := string(c.Request().Header.Peek("referer"))
-	if strings.Contains(devString, "localhost") || devString == "" {
-		dev = true
 	}
 
 	message := &RequestLog{
@@ -108,12 +85,8 @@ func BuildMessage(c *fiber.Ctx) *RequestLog {
 		StatusCode:  strconv.Itoa(c.Response().StatusCode()),
 		Method:      c.Method(),
 		Path:        c.Path(),
-		Hostname:    hostname,
 		UserID:      string(c.Request().Header.Peek("user_id")),
-		Proxy:       proxyBool,
 		Duration:    durationFloat,
-		Client:      client,
-		DevEnv:      dev,
 	}
 	return message
 }
@@ -186,7 +159,11 @@ func LogRequest(message *RequestLog) {
 	txtLogString := fmt.Sprintf("[%s] %s %s %s - %s %s", fmt.Sprintf(LEVEL_FORMAT_STRING, message.Level), message.Date, message.RequestId, message.StatusCode, message.Method, message.Path)
 	if message.Error != nil {
 		txtLogString += " - " + message.Error.Error()
+		message.Message = message.Error.Error()
+	} else {
+		message.Message = fmt.Sprintf("[%s] %s %s", message.Method, message.StatusCode, message.Method)
 	}
+
 	if viper.GetString("app.logType") == "json" {
 		fmt.Println(jsonLogString)
 	} else {
