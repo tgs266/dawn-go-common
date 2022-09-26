@@ -27,7 +27,6 @@ type RequestLog struct {
 	StatusCode  string     `json:"statusCode"`
 	Method      string     `json:"method"`
 	Path        string     `json:"path"`
-	Url         string     `json:"url"`
 	UserID      string     `json:"userId"`
 	Duration    float64    `json:"duration"`
 	Message     string     `json:"message"`
@@ -86,7 +85,6 @@ func BuildMessage(c *fiber.Ctx) *RequestLog {
 		StatusCode:  strconv.Itoa(c.Response().StatusCode()),
 		Method:      c.Method(),
 		Path:        c.Path(),
-		Url:         c.OriginalURL(),
 		UserID:      string(c.Request().Header.Peek("user_id")),
 		Duration:    durationFloat,
 	}
