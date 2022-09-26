@@ -154,14 +154,18 @@ func LogRequest(message *RequestLog) {
 		os.MkdirAll(logFolder, 0700)
 	}
 
-	tempLogString, _ := json.Marshal(message)
-	jsonLogString := string(tempLogString)
-	txtLogString := fmt.Sprintf("[%s] %s %s %s - %s %s", fmt.Sprintf(LEVEL_FORMAT_STRING, message.Level), message.Date, message.RequestId, message.StatusCode, message.Method, message.Path)
 	if message.Error != nil {
-		txtLogString += " - " + message.Error.Error()
 		message.Message = message.Error.Error()
 	} else {
 		message.Message = fmt.Sprintf("[%s] %s %s", message.Method, message.StatusCode, message.Method)
+	}
+
+	tempLogString, _ := json.Marshal(message)
+	jsonLogString := string(tempLogString)
+	txtLogString := fmt.Sprintf("[%s] %s %s %s - %s %s", fmt.Sprintf(LEVEL_FORMAT_STRING, message.Level), message.Date, message.RequestId, message.StatusCode, message.Method, message.Path)
+
+	if message.Error != nil {
+		txtLogString += " - " + message.Error.Error()
 	}
 
 	if viper.GetString("app.logType") == "json" {
