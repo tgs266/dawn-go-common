@@ -19,6 +19,7 @@ var logLineCount int = 0
 var logFileCount int = 1
 
 type RequestLog struct {
+	Proxy       bool       `json:"proxy"`
 	ServiceName string     `json:"serviceName"`
 	Date        string     `json:"date"`
 	Level       string     `json:"level"`
@@ -61,7 +62,13 @@ func buildMessageLog(c *fiber.Ctx, message string) MessageLog {
 func BuildMessage(c *fiber.Ctx) *RequestLog {
 	requestId := c.Locals("requestId")
 	start := c.Locals("start")
+	proxyInterface := c.Locals("proxy")
 	durationFloat := -1.0
+
+	proxy := false
+	if proxyInterface != nil {
+		proxy = true
+	}
 
 	reqHeaders := map[string]string{}
 	c.Request().Header.VisitAll(func(k, v []byte) {
@@ -78,6 +85,7 @@ func BuildMessage(c *fiber.Ctx) *RequestLog {
 	}
 
 	message := &RequestLog{
+		Proxy:       proxy,
 		ServiceName: viper.GetString("app.name"),
 		Date:        time.Now().Format(time.RFC3339),
 		RequestId:   fmt.Sprintf("%s", requestId),
