@@ -12,7 +12,6 @@ import (
 	"github.com/gobwas/glob"
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
-	"github.com/valyala/fasthttp"
 )
 
 var logLineCount int = 0
@@ -31,10 +30,12 @@ type RequestLog struct {
 	UserID      string     `json:"userId"`
 	Duration    float64    `json:"duration"`
 	Message     string     `json:"message"`
+	Request     Request    `json:"request"`
 }
 
 type Request struct {
-	Headers fasthttp.RequestHeader
+	QueryParams map[string]string `json:"queryParams"`
+	Headers     map[string]string `json:"headers"`
 }
 
 type MessageLog struct {
@@ -71,8 +72,13 @@ func BuildMessage(c *fiber.Ctx) *RequestLog {
 	}
 
 	reqHeaders := map[string]string{}
+	queryParams := map[string]string{}
 	c.Request().Header.VisitAll(func(k, v []byte) {
 		reqHeaders[string(k)] = string(v)
+	})
+
+	c.Request().URI().QueryArgs().VisitAll(func(k, v []byte) {
+		queryParams[string(k)] = string(v)
 	})
 
 	resHeaders := map[string]string{}
@@ -95,6 +101,10 @@ func BuildMessage(c *fiber.Ctx) *RequestLog {
 		Path:        c.Path(),
 		UserID:      string(c.Request().Header.Peek("user_id")),
 		Duration:    durationFloat,
+		Request: Request{
+			Headers:     reqHeaders,
+			QueryParams: queryParams,
+		},
 	}
 	return message
 }
