@@ -11,6 +11,7 @@ import (
 
 	"github.com/gobwas/glob"
 	"github.com/gofiber/fiber/v2"
+	"github.com/mileusna/useragent"
 	"github.com/spf13/viper"
 )
 
@@ -31,11 +32,25 @@ type RequestLog struct {
 	Duration    float64    `json:"duration"`
 	Message     string     `json:"message"`
 	Request     Request    `json:"request"`
+	UserAgent   UserAgent  `json:"userAgent"`
+	IPs         []string   `json:"ips"`
 }
 
 type Request struct {
 	QueryParams map[string]string `json:"queryParams"`
 	Headers     map[string]string `json:"headers"`
+}
+
+type UserAgent struct {
+	Bot       bool   `json:"bot"`
+	Tablet    bool   `json:"tablet"`
+	Mobile    bool   `json:"mobile"`
+	Desktop   bool   `json:"desktop"`
+	Device    string `json:"device"`
+	OS        string `json:"os"`
+	OSVersion string `json:"osVersion"`
+	Name      string `json:"name"`
+	Version   string `json:"version"`
 }
 
 type MessageLog struct {
@@ -81,6 +96,9 @@ func BuildMessage(c *fiber.Ctx) *RequestLog {
 		queryParams[string(k)] = string(v)
 	})
 
+	userAgent := string(c.Request().Header.UserAgent())
+	ua := useragent.Parse(userAgent)
+
 	resHeaders := map[string]string{}
 	c.Response().Header.VisitAll(func(k, v []byte) {
 		resHeaders[string(k)] = string(v)
@@ -101,9 +119,20 @@ func BuildMessage(c *fiber.Ctx) *RequestLog {
 		Path:        c.Path(),
 		UserID:      string(c.Request().Header.Peek("user_id")),
 		Duration:    durationFloat,
+		IPs:         c.IPs(),
 		Request: Request{
 			Headers:     reqHeaders,
 			QueryParams: queryParams,
+		},
+		UserAgent: UserAgent{
+			Name:      ua.Name,
+			Version:   ua.Version,
+			OS:        ua.OS,
+			OSVersion: ua.OSVersion,
+			Mobile:    ua.Mobile,
+			Tablet:    ua.Tablet,
+			Desktop:   ua.Desktop,
+			Bot:       ua.Bot,
 		},
 	}
 	return message
