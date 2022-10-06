@@ -78,6 +78,11 @@ func (err *DawnError) ChangeServiceName(name string) *DawnError {
 	return err
 }
 
+func (err *DawnError) SetCause(cause error) *DawnError {
+	err.Cause = cause
+	return err
+}
+
 func Build(err error) *DawnError {
 	return &DawnError{
 		Name:        "INTERNAL_SERVER_ERROR",
