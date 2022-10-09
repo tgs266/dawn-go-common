@@ -75,6 +75,22 @@ func buildMessageLog(c *fiber.Ctx, message string) MessageLog {
 	return messageLog
 }
 
+func ParseUserAgent(c *fiber.Ctx) UserAgent {
+	userAgent := string(c.Request().Header.UserAgent())
+	ua := useragent.Parse(userAgent)
+
+	return UserAgent{
+		Name:      ua.Name,
+		Version:   ua.Version,
+		OS:        ua.OS,
+		OSVersion: ua.OSVersion,
+		Mobile:    ua.Mobile,
+		Tablet:    ua.Tablet,
+		Desktop:   ua.Desktop,
+		Bot:       ua.Bot,
+	}
+}
+
 func BuildMessage(c *fiber.Ctx) *RequestLog {
 	requestId := c.Locals("requestId")
 	start := c.Locals("start")
@@ -95,9 +111,6 @@ func BuildMessage(c *fiber.Ctx) *RequestLog {
 	c.Request().URI().QueryArgs().VisitAll(func(k, v []byte) {
 		queryParams[string(k)] = string(v)
 	})
-
-	userAgent := string(c.Request().Header.UserAgent())
-	ua := useragent.Parse(userAgent)
 
 	resHeaders := map[string]string{}
 	c.Response().Header.VisitAll(func(k, v []byte) {
@@ -124,16 +137,7 @@ func BuildMessage(c *fiber.Ctx) *RequestLog {
 			Headers:     reqHeaders,
 			QueryParams: queryParams,
 		},
-		UserAgent: UserAgent{
-			Name:      ua.Name,
-			Version:   ua.Version,
-			OS:        ua.OS,
-			OSVersion: ua.OSVersion,
-			Mobile:    ua.Mobile,
-			Tablet:    ua.Tablet,
-			Desktop:   ua.Desktop,
-			Bot:       ua.Bot,
-		},
+		UserAgent: ParseUserAgent(c),
 	}
 	return message
 }
