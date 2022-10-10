@@ -1,8 +1,10 @@
 package jwt
 
 import (
+	"crypto/rand"
 	"errors"
 	"fmt"
+	"math/big"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -12,6 +14,19 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/spf13/viper"
 )
+
+func GenerateRandomString(n int) string {
+	const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-"
+	ret := make([]byte, n)
+	for i := 0; i < n; i++ {
+		num, _ := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
+		ret[i] = letters[num.Int64()]
+	}
+
+	return string(ret)
+}
+
+var ACCESS_SECRET = GenerateRandomString(32)
 
 type Claims struct {
 	Name  string `json:"name"`
@@ -42,7 +57,7 @@ func IssueJWT(user SharedEntities.User) (string, time.Time, error) {
 	}
 
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
-	token, err := at.SignedString([]byte(viper.GetString("JWT.ACCESS_SECRET")))
+	token, err := at.SignedString([]byte(ACCESS_SECRET))
 	if err != nil {
 		return "", expiration, err
 	}
@@ -52,7 +67,7 @@ func IssueJWT(user SharedEntities.User) (string, time.Time, error) {
 func IssueRefreshToken(user SharedEntities.User) (string, time.Time, error) {
 	var err error
 
-	expTime := viper.GetInt("JWT.refresh_expiration")
+	expTime := viper.GetInt("JWT.expiration")
 	expiration := time.Now().Add(time.Minute * time.Duration(expTime))
 	atClaims := RefreshClaims{
 		ID: user.ID,
@@ -62,7 +77,7 @@ func IssueRefreshToken(user SharedEntities.User) (string, time.Time, error) {
 	}
 
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
-	token, err := at.SignedString([]byte(viper.GetString("JWT.ACCESS_SECRET")))
+	token, err := at.SignedString([]byte(ACCESS_SECRET))
 	if err != nil {
 		return "", expiration, err
 	}
@@ -87,10 +102,10 @@ func ExtractClaims(token string) Claims {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf(("invalid signing method"))
 		}
-		return []byte(viper.GetString("JWT.ACCESS_SECRET")), nil
+		return []byte(ACCESS_SECRET), nil
 	})
 	if err != nil {
-		panic(UNAUTHORIZED)
+		panic(err)
 	}
 
 	if out.Valid {
@@ -110,7 +125,7 @@ func ExtractClaimsNoError(token string) Claims {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, nil
 		}
-		return []byte(viper.GetString("JWT.ACCESS_SECRET")), nil
+		return []byte(ACCESS_SECRET), nil
 	})
 	if err != nil {
 		panic(UNAUTHORIZED)
@@ -126,7 +141,7 @@ func ExtractRefreshClaims(token string) RefreshClaims {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf(("invalid signing method"))
 		}
-		return []byte(viper.GetString("JWT.ACCESS_SECRET")), nil
+		return []byte(ACCESS_SECRET), nil
 	})
 	if err != nil {
 		panic(UNAUTHORIZED)
