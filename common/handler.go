@@ -37,9 +37,6 @@ func DawnErrorHandler(ctx *fiber.Ctx, err error) error {
 		message = errors.NewInternal(nil).BuildStandardError(ctx)
 	}
 
-	errors.ErrorCount.WithLabelValues(logMessage.StatusCode, logMessage.Method, ctx.Route().Path).
-		Inc()
-
 	err = ctx.Status(code).JSON(message)
 
 	return nil
