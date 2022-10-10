@@ -17,7 +17,7 @@ func DawnErrorHandler(ctx *fiber.Ctx, err error) error {
 	if err != nil {
 		if e, ok := err.(*errors.DawnError); ok {
 			code = e.Code
-			message = err.(*errors.DawnError).BuildStandardError(ctx)
+			message = e.BuildStandardError(ctx)
 		} else {
 			err = errors.NewInternal(err)
 		}
