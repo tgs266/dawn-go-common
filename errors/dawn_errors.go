@@ -7,12 +7,10 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/spf13/viper"
 )
 
-var ErrorCount *prometheus.CounterVec
+// var ErrorCount *prometheus.CounterVec
 
 type BaseError interface {
 	Error() string
@@ -97,19 +95,19 @@ func (err *DawnError) LogString(c *fiber.Ctx) {
 	fmt.Println(output)
 }
 
-func RegisterDawnPrometheus() {
-	constLabels := make(prometheus.Labels)
-	constLabels["service"] = viper.GetString("app.name")
+// func RegisterDawnPrometheus() {
+// 	constLabels := make(prometheus.Labels)
+// 	constLabels["service"] = viper.GetString("app.name")
 
-	ErrorCount = promauto.NewCounterVec(
-		prometheus.CounterOpts{
-			Name:        prometheus.BuildFQName("http", "", "requests_total_error"),
-			Help:        "Count all http requests by status code, method and path.",
-			ConstLabels: constLabels,
-		},
-		[]string{"status_code", "method", "path"},
-	)
-}
+// 	ErrorCount = promauto.NewCounterVec(
+// 		prometheus.CounterOpts{
+// 			Name:        prometheus.BuildFQName("http", "", "requests_total_error"),
+// 			Help:        "Count all http requests by status code, method and path.",
+// 			ConstLabels: constLabels,
+// 		},
+// 		[]string{"status_code", "method", "path"},
+// 	)
+// }
 
 var INTERNAL_SERVER_STANDARD_ERROR = &DawnError{
 	Name:        "INTERNAL_SERVER_ERROR",
