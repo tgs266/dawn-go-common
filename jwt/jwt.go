@@ -93,7 +93,7 @@ func ExtractClaims(token string) Claims {
 		return []byte(ACCESS_SECRET), nil
 	})
 	if err != nil {
-		panic(DawnErrors.NewInternal(err))
+		panic(DawnErrors.NewInternal(err).AddLogDetails(err.Error()))
 	}
 
 	if out.Valid {
@@ -116,7 +116,7 @@ func ExtractClaimsNoError(token string) Claims {
 		return []byte(ACCESS_SECRET), nil
 	})
 	if err != nil {
-		panic(DawnErrors.NewInternal(err))
+		panic(DawnErrors.NewInternal(err).AddLogDetails(err.Error()))
 	}
 
 	return claims
@@ -133,7 +133,7 @@ func ExtractRefreshClaims(token string) RefreshClaims {
 	})
 
 	if err != nil {
-		panic(DawnErrors.NewInternal(err))
+		panic(DawnErrors.NewInternal(err).AddLogDetails(err.Error()))
 	}
 
 	if out.Valid {
