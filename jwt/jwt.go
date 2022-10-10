@@ -118,7 +118,7 @@ func ExtractRefreshClaims(token string) *RefreshClaims {
 	})
 
 	if err != nil {
-		panic(DawnErrors.NewInternal(err).AddLogDetails(err.Error()))
+		panic(DawnErrors.NewInternal(err).AddLogDetails(err.Error()).PutDetail("token", token))
 	}
 
 	if claims, ok := out.Claims.(*RefreshClaims); ok && out.Valid {
