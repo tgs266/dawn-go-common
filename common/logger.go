@@ -272,7 +272,7 @@ func ErrorHandler(ctx *fiber.Ctx, err error) *DawnError {
 	if e, ok := err.(*DawnError); ok {
 		returnError = e
 	} else {
-		returnError = Build(err)
+		returnError = New(err)
 	}
 
 	return returnError

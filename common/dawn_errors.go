@@ -83,22 +83,23 @@ func (err *DawnError) SetCause(cause error) *DawnError {
 	return err
 }
 
-func Build(err error) *DawnError {
+func New(err error) *DawnError {
+
 	return &DawnError{
 		Name:        "INTERNAL_SERVER_ERROR",
 		Description: err.Error(),
 		Code:        500,
-		StackTrace:  "",
+		StackTrace:  recordStack().Format(),
 		Cause:       err,
 	}
 }
 
-func BuildUnknown() *DawnError {
+func NewUnknown() *DawnError {
 	return &DawnError{
 		Name:        "INTERNAL_SERVER_ERROR",
 		Description: "Unknown error occured",
 		Code:        500,
-		StackTrace:  "",
+		StackTrace:  recordStack().Format(),
 		Cause:       nil,
 	}
 }
@@ -153,11 +154,11 @@ func DawnErrorHandler(ctx *fiber.Ctx, err error) error {
 			code = e.Code
 			message = err.(*DawnError).BuildStandardError(ctx)
 		} else {
-			err = Build(err)
+			err = New(err)
 		}
 
 	} else {
-		err = BuildUnknown()
+		err = NewUnknown()
 	}
 
 	err.(*DawnError).StackTrace = stackTrace
