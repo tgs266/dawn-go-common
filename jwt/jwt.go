@@ -52,7 +52,7 @@ func IssueJWT(user SharedEntities.User) (string, time.Time, error) {
 func IssueRefreshToken(user SharedEntities.User) (string, time.Time, error) {
 	var err error
 
-	expTime := viper.GetInt("JWT.expiration")
+	expTime := viper.GetInt("JWT.refresh_expiration")
 	expiration := time.Now().Add(time.Minute * time.Duration(expTime))
 	atClaims := RefreshClaims{
 		ID: user.ID,
