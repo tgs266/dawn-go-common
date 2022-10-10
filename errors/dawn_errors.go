@@ -83,6 +83,45 @@ func (err *DawnError) SetCause(cause error) *DawnError {
 	return err
 }
 
+func (err *DawnError) SetDescription(desc string) *DawnError {
+	err.Description = desc
+	return err
+}
+
+func (err *DawnError) LogJson(c *fiber.Ctx) {
+	jsonErrBytes, _ := json.Marshal(err)
+	fmt.Println(string(jsonErrBytes))
+}
+
+func (err *DawnError) LogString(c *fiber.Ctx) {
+	requestId := c.Locals("requestId")
+	output := strconv.Itoa(os.Getpid()) + " " + fmt.Sprintf("%s", requestId) + " " + strconv.Itoa(err.Code) + " - " + c.Method() + " " + c.Route().Path + " - " + err.Error()
+	if err.LogDetails != "" {
+		output += " - " + err.LogDetails
+	}
+	fmt.Println(output)
+}
+
+func RegisterDawnPrometheus() {
+	constLabels := make(prometheus.Labels)
+	constLabels["service"] = viper.GetString("app.name")
+
+	ErrorCount = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name:        prometheus.BuildFQName("http", "", "requests_total_error"),
+			Help:        "Count all http requests by status code, method and path.",
+			ConstLabels: constLabels,
+		},
+		[]string{"status_code", "method", "path"},
+	)
+}
+
+var INTERNAL_SERVER_STANDARD_ERROR = &DawnError{
+	Name:        "INTERNAL_SERVER_ERROR",
+	Description: "Unkown internal server error occurred",
+	Code:        500,
+}
+
 func New(name string, description string, code int, err error) *DawnError {
 	return &DawnError{
 		Name:        "INTERNAL_SERVER_ERROR",
@@ -125,36 +164,10 @@ func NewUnauthorizedInvalid(cause error) *DawnError {
 	return New("UNAUTHORIZED", "JWT token is invalud", 401, cause)
 }
 
-func (err *DawnError) LogJson(c *fiber.Ctx) {
-	jsonErrBytes, _ := json.Marshal(err)
-	fmt.Println(string(jsonErrBytes))
+func NewNotFound(cause error) *DawnError {
+	return New("NOT_FOUND", "not found", 404, cause)
 }
 
-func (err *DawnError) LogString(c *fiber.Ctx) {
-	requestId := c.Locals("requestId")
-	output := strconv.Itoa(os.Getpid()) + " " + fmt.Sprintf("%s", requestId) + " " + strconv.Itoa(err.Code) + " - " + c.Method() + " " + c.Route().Path + " - " + err.Error()
-	if err.LogDetails != "" {
-		output += " - " + err.LogDetails
-	}
-	fmt.Println(output)
-}
-
-func RegisterDawnPrometheus() {
-	constLabels := make(prometheus.Labels)
-	constLabels["service"] = viper.GetString("app.name")
-
-	ErrorCount = promauto.NewCounterVec(
-		prometheus.CounterOpts{
-			Name:        prometheus.BuildFQName("http", "", "requests_total_error"),
-			Help:        "Count all http requests by status code, method and path.",
-			ConstLabels: constLabels,
-		},
-		[]string{"status_code", "method", "path"},
-	)
-}
-
-var INTERNAL_SERVER_STANDARD_ERROR = &DawnError{
-	Name:        "INTERNAL_SERVER_ERROR",
-	Description: "Unkown internal server error occurred",
-	Code:        500,
+func NewBadRequest(cause error) *DawnError {
+	return New("BAD_REQUEST", "bad request", 400, cause)
 }
