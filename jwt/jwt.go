@@ -14,14 +14,14 @@ import (
 )
 
 type Claims struct {
-	Name  string
-	Email string
-	ID    string
-	Role  int
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	ID    string `json:"id"`
+	Role  int    `json:"role"`
 	jwt.RegisteredClaims
 }
 type RefreshClaims struct {
-	ID string
+	ID string `json:"id"`
 	jwt.RegisteredClaims
 }
 
