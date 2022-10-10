@@ -154,3 +154,7 @@ func NewNotFound(cause error) *DawnError {
 func NewBadRequest(cause error) *DawnError {
 	return New("BAD_REQUEST", "bad request", 400, cause)
 }
+
+func NewForbidden(cause error) *DawnError {
+	return New("FORBIDDEN", "forbidden", 403, cause)
+}
