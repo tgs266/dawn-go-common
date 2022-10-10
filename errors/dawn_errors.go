@@ -119,32 +119,20 @@ var INTERNAL_SERVER_STANDARD_ERROR = &DawnError{
 
 func New(name string, description string, code int, err error) *DawnError {
 	return &DawnError{
-		Name:        "INTERNAL_SERVER_ERROR",
-		Description: err.Error(),
-		Code:        500,
+		Name:        name,
+		Description: description,
+		Code:        code,
 		StackTrace:  recordStack().Format(),
 		Cause:       err,
 	}
 }
 
 func NewInternal(err error) *DawnError {
-	return &DawnError{
-		Name:        "INTERNAL_SERVER_ERROR",
-		Description: err.Error(),
-		Code:        500,
-		StackTrace:  recordStack().Format(),
-		Cause:       err,
-	}
+	return New("INTERNAL_SERVER_ERROR", "INTERNAL_SERVER_ERROR", 500, err)
 }
 
 func NewUnknown() *DawnError {
-	return &DawnError{
-		Name:        "INTERNAL_SERVER_ERROR",
-		Description: "Unknown error occured",
-		Code:        500,
-		StackTrace:  recordStack().Format(),
-		Cause:       nil,
-	}
+	return New("INTERNAL_SERVER_ERROR", "Unknown error occured", 500, nil)
 }
 
 func NewUnauthorized(cause error) *DawnError {
