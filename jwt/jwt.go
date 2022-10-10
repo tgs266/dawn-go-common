@@ -69,9 +69,8 @@ func IssueRefreshToken(user SharedEntities.User) (string, time.Time, error) {
 	return token, expiration, nil
 }
 
-func ExtractClaims(token string) Claims {
-	claims := Claims{}
-	out, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
+func ExtractClaims(token string) *Claims {
+	out, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf(("invalid signing method"))
 		}
@@ -81,7 +80,7 @@ func ExtractClaims(token string) Claims {
 		panic(DawnErrors.NewInternal(err).AddLogDetails(err.Error()))
 	}
 
-	if out.Valid {
+	if claims, ok := out.Claims.(*Claims); ok && out.Valid {
 		return claims
 	} else if errors.Is(err, jwt.ErrTokenMalformed) {
 		panic(DawnErrors.NewUnauthorizedInvalid(err))
@@ -92,9 +91,8 @@ func ExtractClaims(token string) Claims {
 	}
 }
 
-func ExtractClaimsNoError(token string) Claims {
-	claims := Claims{}
-	_, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
+func ExtractClaimsNoError(token string) *Claims {
+	out, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, nil
 		}
@@ -104,13 +102,15 @@ func ExtractClaimsNoError(token string) Claims {
 		panic(DawnErrors.NewInternal(err).AddLogDetails(err.Error()))
 	}
 
-	return claims
+	if claims, ok := out.Claims.(*Claims); ok && out.Valid {
+		return claims
+	}
+	panic(DawnErrors.NewInternal(err).AddLogDetails("out.claims is nil"))
 }
 
-func ExtractRefreshClaims(token string) RefreshClaims {
+func ExtractRefreshClaims(token string) *RefreshClaims {
 
-	claims := RefreshClaims{}
-	out, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
+	out, err := jwt.ParseWithClaims(token, &RefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf(("invalid signing method"))
 		}
@@ -121,7 +121,7 @@ func ExtractRefreshClaims(token string) RefreshClaims {
 		panic(DawnErrors.NewInternal(err).AddLogDetails(err.Error()))
 	}
 
-	if out.Valid {
+	if claims, ok := out.Claims.(*RefreshClaims); ok && out.Valid {
 		return claims
 	} else if errors.Is(err, jwt.ErrTokenMalformed) {
 		panic(DawnErrors.NewUnauthorizedInvalid(err))
@@ -132,7 +132,7 @@ func ExtractRefreshClaims(token string) RefreshClaims {
 	}
 }
 
-func ValidateTokenToUser(c *fiber.Ctx, userId string) Claims {
+func ValidateTokenToUser(c *fiber.Ctx, userId string) *Claims {
 
 	token := string(c.Request().Header.Peek("Authorization"))
 	claims := ExtractClaims(token)
@@ -145,12 +145,12 @@ func ValidateTokenToUser(c *fiber.Ctx, userId string) Claims {
 	return claims
 }
 
-func ValidateToken(c *fiber.Ctx) Claims {
+func ValidateToken(c *fiber.Ctx) *Claims {
 	token := string(c.Request().Header.Peek("Authorization"))
 	return ValidateTokenNoCtx(token)
 }
 
-func ValidateTokenNoCtx(token string) Claims {
+func ValidateTokenNoCtx(token string) *Claims {
 	claims := ExtractClaims(token)
 	return claims
 }
