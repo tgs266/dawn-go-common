@@ -78,11 +78,6 @@ func (err *DawnError) ChangeServiceName(name string) *DawnError {
 	return err
 }
 
-func (err *DawnError) SetCause(cause error) *DawnError {
-	err.Cause = cause
-	return err
-}
-
 func (err *DawnError) SetDescription(desc string) *DawnError {
 	err.Description = desc
 	return err
