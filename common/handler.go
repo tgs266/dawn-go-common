@@ -1,7 +1,6 @@
 package common
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -11,11 +10,6 @@ import (
 
 func DawnErrorHandler(ctx *fiber.Ctx, err error) error {
 	code := fiber.StatusInternalServerError
-
-	stackTrace := ""
-	if ctx.Locals("stack_trace") != nil {
-		stackTrace = fmt.Sprint(ctx.Locals("stack_trace"))
-	}
 
 	message := errors.StandardError{Source: viper.GetString("app.name"), ErrorCode: "INTERNAL_SERVER",
 		Description: "Internal Server Error Occurred", Details: map[string]string{"RequestId": ""}}
@@ -31,8 +25,6 @@ func DawnErrorHandler(ctx *fiber.Ctx, err error) error {
 	} else {
 		err = errors.NewUnknown()
 	}
-
-	err.(*errors.DawnError).StackTrace = stackTrace
 
 	logMessage := BuildMessage(ctx)
 	logMessage.Error = err.(*errors.DawnError)
