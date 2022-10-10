@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/spf13/viper"
+	"github.com/tgs266/dawn-go-common/errors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -77,7 +78,7 @@ func (session *DBSession) Collection(colName string) *mongo.Collection {
 		return session.DB.Collection(colName)
 	} else {
 		if err := session.Connect(); err != nil {
-			panic(INTERNAL_SERVER_STANDARD_ERROR.PutDetail("reason", err.Error()))
+			panic(errors.INTERNAL_SERVER_STANDARD_ERROR.PutDetail("reason", err.Error()))
 		} else {
 			return session.DB.Collection(colName)
 		}
@@ -88,7 +89,7 @@ func (session *DBSession) Ping() error {
 	if session.Client != nil {
 		return session.Client.Ping(session.Ctx, readpref.Primary())
 	}
-	return INTERNAL_SERVER_STANDARD_ERROR
+	return errors.INTERNAL_SERVER_STANDARD_ERROR
 }
 
 func (session *DBSession) Close() {

@@ -1,4 +1,4 @@
-package common
+package errors
 
 import (
 	"encoding/json"
@@ -19,13 +19,13 @@ type BaseError interface {
 }
 
 type DawnError struct {
-	StackTrace  string            `json:"stack_trace"`
+	StackTrace  string            `json:"stackTrace"`
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
-	LogDetails  string            `json:"log_details"`
+	LogDetails  string            `json:"logDetails"`
 	Code        int               `json:"code"`
 	Details     map[string]string `json:"details"`
-	ServiceName string            `json:"service_name"`
+	ServiceName string            `json:"serviceName"`
 	Cause       error             `json:"cause"`
 }
 
@@ -83,8 +83,17 @@ func (err *DawnError) SetCause(cause error) *DawnError {
 	return err
 }
 
-func New(err error) *DawnError {
+func New(name string, description string, code int, err error) *DawnError {
+	return &DawnError{
+		Name:        "INTERNAL_SERVER_ERROR",
+		Description: err.Error(),
+		Code:        500,
+		StackTrace:  recordStack().Format(),
+		Cause:       err,
+	}
+}
 
+func NewInternal(err error) *DawnError {
 	return &DawnError{
 		Name:        "INTERNAL_SERVER_ERROR",
 		Description: err.Error(),
@@ -102,6 +111,18 @@ func NewUnknown() *DawnError {
 		StackTrace:  recordStack().Format(),
 		Cause:       nil,
 	}
+}
+
+func NewUnauthorized(cause error) *DawnError {
+	return New("UNAUTHORIZED", "unauthorized", 401, cause)
+}
+
+func NewUnauthorizedExpired(cause error) *DawnError {
+	return New("UNAUTHORIZED", "JWT token is expired", 401, cause)
+}
+
+func NewUnauthorizedInvalid(cause error) *DawnError {
+	return New("UNAUTHORIZED", "JWT token is invalud", 401, cause)
 }
 
 func (err *DawnError) LogJson(c *fiber.Ctx) {
@@ -136,48 +157,4 @@ var INTERNAL_SERVER_STANDARD_ERROR = &DawnError{
 	Name:        "INTERNAL_SERVER_ERROR",
 	Description: "Unkown internal server error occurred",
 	Code:        500,
-}
-
-func DawnErrorHandler(ctx *fiber.Ctx, err error) error {
-	code := fiber.StatusInternalServerError
-
-	stackTrace := ""
-	if ctx.Locals("stack_trace") != nil {
-		stackTrace = fmt.Sprint(ctx.Locals("stack_trace"))
-	}
-
-	message := StandardError{Source: viper.GetString("app.name"), ErrorCode: "INTERNAL_SERVER",
-		Description: "Internal Server Error Occurred", Details: map[string]string{"RequestId": ""}}
-
-	if err != nil {
-		if e, ok := err.(*DawnError); ok {
-			code = e.Code
-			message = err.(*DawnError).BuildStandardError(ctx)
-		} else {
-			err = New(err)
-		}
-
-	} else {
-		err = NewUnknown()
-	}
-
-	err.(*DawnError).StackTrace = stackTrace
-
-	logMessage := BuildMessage(ctx)
-	logMessage.Error = err.(*DawnError)
-	logMessage.Level = "ERROR"
-	logMessage.StatusCode = strconv.Itoa(code)
-
-	LogRequest(logMessage)
-
-	if code == 500 {
-		message = INTERNAL_SERVER_STANDARD_ERROR.BuildStandardError(ctx)
-	}
-
-	ErrorCount.WithLabelValues(logMessage.StatusCode, logMessage.Method, ctx.Route().Path).
-		Inc()
-
-	err = ctx.Status(code).JSON(message)
-
-	return nil
 }

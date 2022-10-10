@@ -13,27 +13,28 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/mileusna/useragent"
 	"github.com/spf13/viper"
+	"github.com/tgs266/dawn-go-common/errors"
 )
 
 var logLineCount int = 0
 var logFileCount int = 1
 
 type RequestLog struct {
-	Proxy       bool       `json:"proxy"`
-	ServiceName string     `json:"serviceName"`
-	Date        string     `json:"date"`
-	Level       string     `json:"level"`
-	RequestId   string     `json:"requestId"`
-	Error       *DawnError `json:"error"`
-	StatusCode  string     `json:"statusCode"`
-	Method      string     `json:"method"`
-	Path        string     `json:"path"`
-	UserID      string     `json:"userId"`
-	Duration    float64    `json:"duration"`
-	Message     string     `json:"message"`
-	Request     Request    `json:"request"`
-	UserAgent   UserAgent  `json:"userAgent"`
-	IPs         []string   `json:"ips"`
+	Proxy       bool              `json:"proxy"`
+	ServiceName string            `json:"serviceName"`
+	Date        string            `json:"date"`
+	Level       string            `json:"level"`
+	RequestId   string            `json:"requestId"`
+	Error       *errors.DawnError `json:"error"`
+	StatusCode  string            `json:"statusCode"`
+	Method      string            `json:"method"`
+	Path        string            `json:"path"`
+	UserID      string            `json:"userId"`
+	Duration    float64           `json:"duration"`
+	Message     string            `json:"message"`
+	Request     Request           `json:"request"`
+	UserAgent   UserAgent         `json:"userAgent"`
+	IPs         []string          `json:"ips"`
 }
 
 type Request struct {
@@ -267,12 +268,12 @@ func FiberLogger() fiber.Handler {
 	}
 }
 
-func ErrorHandler(ctx *fiber.Ctx, err error) *DawnError {
-	var returnError *DawnError
-	if e, ok := err.(*DawnError); ok {
+func ErrorHandler(ctx *fiber.Ctx, err error) *errors.DawnError {
+	var returnError *errors.DawnError
+	if e, ok := err.(*errors.DawnError); ok {
 		returnError = e
 	} else {
-		returnError = New(err)
+		returnError = errors.NewInternal(err)
 	}
 
 	return returnError

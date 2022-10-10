@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
 	"github.com/tgs266/dawn-go-common/entities"
+	"github.com/tgs266/dawn-go-common/errors"
 )
 
 type DawnCtx struct {
@@ -34,7 +35,7 @@ func (ctx DawnCtx) BodyParser(out interface{}) error {
 	return ctx.FiberCtx.BodyParser(out)
 }
 
-var UNAUTHORIZED_TO_USER_ID = &DawnError{
+var UNAUTHORIZED_TO_USER_ID = &errors.DawnError{
 	Name:        "UNAUTHORIZED_TO_USER_ID",
 	Description: "user is not authorized to access this endpoint",
 	Code:        403,
