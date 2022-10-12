@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/tgs266/dawn-go-common/entities"
 	"github.com/tgs266/dawn-go-common/errors"
+	"github.com/tgs266/dawn-go-common/jwt"
 )
 
 type DawnCtx struct {
@@ -56,10 +57,9 @@ func (ctx DawnCtx) GetJWT() string {
 }
 
 func (ctx DawnCtx) GetRole() int {
-	if string(ctx.FiberCtx.Request().Header.Peek("role")) != "" {
-		return entities.ROLES[string(ctx.FiberCtx.Request().Header.Peek("role"))]
-	}
-	return -1
+	token := ctx.GetJWT()
+	claims := jwt.ExtractClaims(token)
+	return claims.Role
 }
 
 func (ctx DawnCtx) ValidateToAdmin() DawnCtx {
