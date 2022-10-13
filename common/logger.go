@@ -21,6 +21,8 @@ var logFileCount int = 1
 
 type RequestLog struct {
 	Proxy       bool              `json:"proxy"`
+	UseCache    bool              `json:"useCache"`
+	CacheStatus string            `json:"cacheStatus"`
 	ServiceName string            `json:"serviceName"`
 	Date        string            `json:"date"`
 	Level       string            `json:"level"`
@@ -96,11 +98,21 @@ func BuildMessage(c *fiber.Ctx) *RequestLog {
 	requestId := c.Locals("requestId")
 	start := c.Locals("start")
 	proxyInterface := c.Locals("proxy")
+	ucInterface := c.Locals("useCache")
+	cStatus := c.Locals("cacheStatus")
 	durationFloat := -1.0
 
 	proxy := false
+	useCache := false
+	cacheStatus := ""
 	if proxyInterface != nil {
-		proxy = true
+		proxy = proxyInterface.(bool)
+	}
+	if ucInterface != nil {
+		useCache = ucInterface.(bool)
+	}
+	if cStatus != nil {
+		cacheStatus = cStatus.(string)
 	}
 
 	reqHeaders := map[string]string{}
@@ -124,6 +136,8 @@ func BuildMessage(c *fiber.Ctx) *RequestLog {
 
 	message := &RequestLog{
 		Proxy:       proxy,
+		UseCache:    useCache,
+		CacheStatus: cacheStatus,
 		ServiceName: viper.GetString("app.name"),
 		Date:        time.Now().Format(time.RFC3339),
 		RequestId:   fmt.Sprintf("%s", requestId),
