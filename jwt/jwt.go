@@ -77,7 +77,7 @@ func ExtractClaims(token string) *Claims {
 		return []byte(viper.GetString("JWT.ACCESS_SECRET")), nil
 	})
 	if err != nil {
-		panic(DawnErrors.NewInternal(err).AddLogDetails(err.Error()))
+		panic(DawnErrors.NewUnauthorized(err).AddLogDetails(err.Error()))
 	}
 
 	if claims, ok := out.Claims.(*Claims); ok && out.Valid {
@@ -124,7 +124,7 @@ func ExtractRefreshClaims(token string) *RefreshClaims {
 	})
 
 	if err != nil {
-		panic(DawnErrors.NewInternal(err).AddLogDetails(err.Error()).PutDetail("token", token))
+		panic(DawnErrors.NewUnauthorized(err).AddLogDetails(err.Error()).PutDetail("token", token))
 	}
 
 	if claims, ok := out.Claims.(*RefreshClaims); ok && out.Valid {
