@@ -98,14 +98,20 @@ func ExtractClaimsNoError(token string) *Claims {
 		}
 		return []byte(viper.GetString("JWT.ACCESS_SECRET")), nil
 	})
+
 	if err != nil {
-		panic(DawnErrors.NewInternal(err).AddLogDetails(err.Error()))
+		return nil
 	}
 
 	if claims, ok := out.Claims.(*Claims); ok && out.Valid {
 		return claims
+	} else if errors.Is(err, jwt.ErrTokenMalformed) {
+		return nil
+	} else if errors.Is(err, jwt.ErrTokenExpired) || errors.Is(err, jwt.ErrTokenNotValidYet) {
+		return nil
+	} else {
+		return nil
 	}
-	panic(DawnErrors.NewInternal(err).AddLogDetails("out.claims is nil"))
 }
 
 func ExtractRefreshClaims(token string) *RefreshClaims {

@@ -14,6 +14,7 @@ import (
 	"github.com/mileusna/useragent"
 	"github.com/spf13/viper"
 	"github.com/tgs266/dawn-go-common/errors"
+	"github.com/tgs266/dawn-go-common/jwt"
 )
 
 var logLineCount int = 0
@@ -134,6 +135,16 @@ func BuildMessage(c *fiber.Ctx) *RequestLog {
 		durationFloat = float64(time.Since(start.(time.Time)).Nanoseconds()) / 1000000
 	}
 
+	var userId string
+	if (DawnCtx{FiberCtx: c}.GetJWT() != "") {
+		claims := jwt.ExtractClaimsNoError(DawnCtx{FiberCtx: c}.GetJWT())
+		if claims != nil {
+			userId = claims.ID
+		}
+	} else {
+		userId = ""
+	}
+
 	message := &RequestLog{
 		Proxy:       proxy,
 		UseCache:    useCache,
@@ -145,7 +156,7 @@ func BuildMessage(c *fiber.Ctx) *RequestLog {
 		StatusCode:  strconv.Itoa(c.Response().StatusCode()),
 		Method:      c.Method(),
 		Path:        c.Path(),
-		UserID:      string(c.Request().Header.Peek("user_id")),
+		UserID:      userId,
 		Duration:    durationFloat,
 		IPs:         c.IPs(),
 		Request: Request{
