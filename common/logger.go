@@ -43,6 +43,7 @@ type RequestLog struct {
 type Request struct {
 	QueryParams map[string]string `json:"queryParams"`
 	Headers     map[string]string `json:"headers"`
+	Cookies     map[string]string `json:"cookies"`
 }
 
 type UserAgent struct {
@@ -116,10 +117,14 @@ func BuildMessage(c *fiber.Ctx) *RequestLog {
 		cacheStatus = cStatus.(string)
 	}
 
+	cookies := map[string]string{}
 	reqHeaders := map[string]string{}
 	queryParams := map[string]string{}
 	c.Request().Header.VisitAll(func(k, v []byte) {
 		reqHeaders[string(k)] = string(v)
+	})
+	c.Request().Header.VisitAllCookie(func(k, v []byte) {
+		cookies[string(k)] = string(v)
 	})
 
 	c.Request().URI().QueryArgs().VisitAll(func(k, v []byte) {
@@ -162,6 +167,7 @@ func BuildMessage(c *fiber.Ctx) *RequestLog {
 		Request: Request{
 			Headers:     reqHeaders,
 			QueryParams: queryParams,
+			Cookies:     cookies,
 		},
 		UserAgent: ParseUserAgent(c),
 	}
