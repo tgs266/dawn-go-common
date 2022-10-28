@@ -38,6 +38,7 @@ type RequestLog struct {
 	Request     Request           `json:"request"`
 	UserAgent   UserAgent         `json:"userAgent"`
 	IPs         []string          `json:"ips"`
+	Event       *Event            `json:"event"`
 }
 
 type Request struct {
