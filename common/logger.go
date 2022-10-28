@@ -38,12 +38,23 @@ type RequestLog struct {
 	Request     Request           `json:"request"`
 	UserAgent   UserAgent         `json:"userAgent"`
 	IPs         []string          `json:"ips"`
+	Event       *Event            `json:"event"`
 }
 
 type Request struct {
 	QueryParams map[string]string `json:"queryParams"`
 	Headers     map[string]string `json:"headers"`
 	Cookies     map[string]string `json:"cookies"`
+}
+
+type Event struct {
+	ID         string                 `json:"id" bson:"id"`
+	UserId     string                 `json:"userId" bson:"userId"`
+	PagePath   string                 `json:"pagePath" bson:"pagePath"`
+	Category   string                 `json:"category" bson:"category"`
+	Action     string                 `json:"action" bson:"action"`
+	Parameters map[string]interface{} `json:"parameters" bson:"parameters"`
+	CreatedAt  time.Time              `json:"createdAt" bson:"createdAt"`
 }
 
 type UserAgent struct {
@@ -99,6 +110,7 @@ func ParseUserAgent(c *fiber.Ctx) UserAgent {
 func BuildMessage(c *fiber.Ctx) *RequestLog {
 	requestId := c.Locals("requestId")
 	start := c.Locals("start")
+	event := c.Locals("event")
 	proxyInterface := c.Locals("proxy")
 	ucInterface := c.Locals("useCache")
 	cStatus := c.Locals("cacheStatus")
