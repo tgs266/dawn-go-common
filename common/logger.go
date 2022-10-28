@@ -38,7 +38,6 @@ type RequestLog struct {
 	Request     Request           `json:"request"`
 	UserAgent   UserAgent         `json:"userAgent"`
 	IPs         []string          `json:"ips"`
-	Event       *Event            `json:"event"`
 }
 
 type Request struct {
@@ -110,7 +109,7 @@ func ParseUserAgent(c *fiber.Ctx) UserAgent {
 func BuildMessage(c *fiber.Ctx) *RequestLog {
 	requestId := c.Locals("requestId")
 	start := c.Locals("start")
-	event := c.Locals("event")
+	// event := c.Locals("event")
 	proxyInterface := c.Locals("proxy")
 	ucInterface := c.Locals("useCache")
 	cStatus := c.Locals("cacheStatus")
