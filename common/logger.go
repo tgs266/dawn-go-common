@@ -110,7 +110,7 @@ func ParseUserAgent(c *fiber.Ctx) UserAgent {
 func BuildMessage(c *fiber.Ctx) *RequestLog {
 	requestId := c.Locals("requestId")
 	start := c.Locals("start")
-	// event := c.Locals("event")
+	event := c.Locals("event")
 	proxyInterface := c.Locals("proxy")
 	ucInterface := c.Locals("useCache")
 	cStatus := c.Locals("cacheStatus")
@@ -152,6 +152,11 @@ func BuildMessage(c *fiber.Ctx) *RequestLog {
 		durationFloat = float64(time.Since(start.(time.Time)).Nanoseconds()) / 1000000
 	}
 
+	var actualEvent *Event
+	if event != nil {
+		actualEvent = event.(*Event)
+	}
+
 	var userId string
 	if (DawnCtx{FiberCtx: c}.GetJWT() != "") {
 		claims := jwt.ExtractClaimsNoError(DawnCtx{FiberCtx: c}.GetJWT())
@@ -182,6 +187,7 @@ func BuildMessage(c *fiber.Ctx) *RequestLog {
 			Cookies:     cookies,
 		},
 		UserAgent: ParseUserAgent(c),
+		Event:     actualEvent,
 	}
 	return message
 }
