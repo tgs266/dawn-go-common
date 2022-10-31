@@ -43,7 +43,7 @@ func CreateHealthDBSession() (*DBSession, error) {
 }
 
 func CreateDBSession(dbName string) (*DBSession, error) {
-	connString := viper.GetString("db.uri") + viper.GetString("db.database")
+	connString := viper.GetString("db.uri") + dbName
 
 	session := &DBSession{
 		Ctx:        context.Background(),
