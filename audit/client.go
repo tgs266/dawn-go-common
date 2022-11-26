@@ -12,6 +12,12 @@ type AuditClient struct {
 	session      *common.DBSession
 }
 
+var Client *AuditClient
+
+func Init(name string) {
+	Client = New(name)
+}
+
 func New(name string) *AuditClient {
 	session, err := common.CreateDBSession(name)
 	if err != nil {
