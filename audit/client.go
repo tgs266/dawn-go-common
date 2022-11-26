@@ -29,8 +29,13 @@ func New(name string) *AuditClient {
 	}
 }
 
-func (a *AuditClient) Audit(collectionName string) *AuditTransaction {
-	return &AuditTransaction{
+func (a *AuditClient) Audit(collectionName string, f func(tx *AuditTransaction)) {
+	defer func() {
+		if r := recover(); r != nil {
+			return
+		}
+	}()
+	tx := &AuditTransaction{
 		collectionName: collectionName,
 		session:        a.session,
 		record: &AuditRecord{
@@ -39,4 +44,5 @@ func (a *AuditClient) Audit(collectionName string) *AuditTransaction {
 			Timestamp:  time.Now(),
 		},
 	}
+	f(tx)
 }

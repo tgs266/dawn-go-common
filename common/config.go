@@ -7,12 +7,16 @@ import (
 	"github.com/spf13/viper"
 )
 
+var ConfigName string
+
 func GetConfig(configName string) {
 	viper.SetConfigName("local")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("./config/")
 	viper.AutomaticEnv()
+
+	ConfigName = configName
 
 	err := viper.ReadInConfig()
 	if err != nil {
