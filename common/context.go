@@ -62,6 +62,12 @@ func (ctx DawnCtx) GetRole() int {
 	return claims.Role
 }
 
+func (ctx DawnCtx) GetUserId() string {
+	token := ctx.GetJWT()
+	claims := jwt.ExtractClaims(token)
+	return claims.ID
+}
+
 func (ctx DawnCtx) ValidateToAdmin() DawnCtx {
 	if viper.GetBool("app.auth") {
 		role := ctx.GetRole()
