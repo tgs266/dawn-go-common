@@ -16,6 +16,11 @@ type CustomCounter struct {
 	function func(ctx *fiber.Ctx, counter *prometheus.CounterVec, args ...string)
 }
 
+type CustomHistogram struct {
+	histogram *prometheus.HistogramVec
+	function  func(ctx *fiber.Ctx, histogram *prometheus.HistogramVec, args ...string)
+}
+
 type MiddlewareCounter struct {
 	counter  *prometheus.CounterVec
 	function func(ctx *fiber.Ctx, counter *prometheus.CounterVec, statusCode string)
@@ -24,6 +29,11 @@ type MiddlewareCounter struct {
 // cant get status code when calling trigger
 func (c CustomCounter) Trigger(ctx *fiber.Ctx, args ...string) {
 	c.function(ctx, c.counter, args...)
+}
+
+// cant get status code when calling trigger
+func (c CustomHistogram) Trigger(ctx *fiber.Ctx, args ...string) {
+	c.function(ctx, c.histogram, args...)
 }
 
 type Client struct {
@@ -157,6 +167,23 @@ func (c *Client) CreateCustomCounter(name, help string, labelNames []string, fun
 	cc := CustomCounter{
 		counter:  counter,
 		function: function,
+	}
+	return cc
+}
+
+func (c *Client) CreateCustomHistogram(name, help string, labelNames []string, buckets []float64, function func(ctx *fiber.Ctx, counter *prometheus.HistogramVec, args ...string)) CustomHistogram {
+	histogram := promauto.With(prometheus.DefaultRegisterer).NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:        name,
+			Help:        help,
+			ConstLabels: c.constLabels,
+			Buckets:     buckets,
+		},
+		labelNames,
+	)
+	cc := CustomHistogram{
+		histogram: histogram,
+		function:  function,
 	}
 	return cc
 }
