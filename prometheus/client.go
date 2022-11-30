@@ -13,7 +13,7 @@ import (
 
 type CustomCounter struct {
 	counter  *prometheus.CounterVec
-	function func(ctx *fiber.Ctx, counter *prometheus.CounterVec)
+	function func(ctx *fiber.Ctx, counter *prometheus.CounterVec, statusCode int)
 }
 
 type Client struct {
@@ -135,7 +135,7 @@ func New(service string) *Client {
 	}
 }
 
-func (c *Client) AddCustomCounter(name, help string, labelNames []string, function func(ctx *fiber.Ctx, counter *prometheus.CounterVec)) *Client {
+func (c *Client) AddCustomCounter(name, help string, labelNames []string, function func(ctx *fiber.Ctx, counter *prometheus.CounterVec, statusCode int)) *Client {
 	counter := promauto.With(prometheus.DefaultRegisterer).NewCounterVec(
 		prometheus.CounterOpts{
 			Name:        name,
