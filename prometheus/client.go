@@ -14,6 +14,13 @@ import (
 type CustomCounter struct {
 	counter  *prometheus.CounterVec
 	function func(ctx *fiber.Ctx, counter *prometheus.CounterVec, statusCode string)
+	// auto -> include in middleware and auto trigger
+	auto bool
+}
+
+// cant get status code when calling trigger
+func (c CustomCounter) Trigger(ctx *fiber.Ctx) {
+	c.function(ctx, c.counter, "")
 }
 
 type Client struct {
@@ -185,7 +192,9 @@ func (c *Client) Middleware(ctx *fiber.Ctx) error {
 	c.responseSize.WithLabelValues(statusCode, method, path).Observe(float64(len(ctx.Response().Body())))
 
 	for _, counter := range c.customCounters {
-		counter.function(ctx, counter.counter, statusCode)
+		if counter.auto {
+			counter.function(ctx, counter.counter, statusCode)
+		}
 	}
 
 	return err
