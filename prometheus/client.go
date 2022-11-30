@@ -13,12 +13,17 @@ import (
 
 type CustomCounter struct {
 	counter  *prometheus.CounterVec
+	function func(ctx *fiber.Ctx, counter *prometheus.CounterVec, args ...string)
+}
+
+type MiddlewareCounter struct {
+	counter  *prometheus.CounterVec
 	function func(ctx *fiber.Ctx, counter *prometheus.CounterVec, statusCode string)
 }
 
 // cant get status code when calling trigger
-func (c CustomCounter) Trigger(ctx *fiber.Ctx) {
-	c.function(ctx, c.counter, "")
+func (c CustomCounter) Trigger(ctx *fiber.Ctx, args ...string) {
+	c.function(ctx, c.counter, args...)
 }
 
 type Client struct {
@@ -28,7 +33,7 @@ type Client struct {
 	requestDuration *prometheus.HistogramVec
 	requestInFlight *prometheus.GaugeVec
 	responseSize    *prometheus.HistogramVec
-	customCounters  []CustomCounter
+	customCounters  []MiddlewareCounter
 }
 
 func New(service string) *Client {
@@ -136,11 +141,11 @@ func New(service string) *Client {
 		requestInFlight: gauge,
 		responseSize:    responseSizeBuckets,
 
-		customCounters: []CustomCounter{},
+		customCounters: []MiddlewareCounter{},
 	}
 }
 
-func (c *Client) AddCustomCounter(name, help string, labelNames []string, function func(ctx *fiber.Ctx, counter *prometheus.CounterVec, statusCode string), useInMiddleware bool) CustomCounter {
+func (c *Client) CreateCustomCounter(name, help string, labelNames []string, function func(ctx *fiber.Ctx, counter *prometheus.CounterVec, args ...string)) CustomCounter {
 	counter := promauto.With(prometheus.DefaultRegisterer).NewCounterVec(
 		prometheus.CounterOpts{
 			Name:        name,
@@ -153,9 +158,23 @@ func (c *Client) AddCustomCounter(name, help string, labelNames []string, functi
 		counter:  counter,
 		function: function,
 	}
-	if useInMiddleware {
-		c.customCounters = append(c.customCounters, cc)
+	return cc
+}
+
+func (c *Client) AddMiddlewareCustomCounter(name, help string, labelNames []string, function func(ctx *fiber.Ctx, counter *prometheus.CounterVec, statusCode string)) MiddlewareCounter {
+	counter := promauto.With(prometheus.DefaultRegisterer).NewCounterVec(
+		prometheus.CounterOpts{
+			Name:        name,
+			Help:        help,
+			ConstLabels: c.constLabels,
+		},
+		labelNames,
+	)
+	cc := MiddlewareCounter{
+		counter:  counter,
+		function: function,
 	}
+	c.customCounters = append(c.customCounters, cc)
 	return cc
 }
 
