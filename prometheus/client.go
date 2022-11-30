@@ -11,11 +11,19 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
+type CustomCounter struct {
+	counter  *prometheus.CounterVec
+	function func(ctx *fiber.Ctx, counter *prometheus.CounterVec)
+}
+
 type Client struct {
+	constLabels prometheus.Labels
+
 	requestTotal    *prometheus.CounterVec
 	requestDuration *prometheus.HistogramVec
 	requestInFlight *prometheus.GaugeVec
 	responseSize    *prometheus.HistogramVec
+	customCounters  []CustomCounter
 }
 
 func New(service string) *Client {
@@ -116,11 +124,31 @@ func New(service string) *Client {
 	}, []string{"method"})
 
 	return &Client{
+		constLabels: constLabels,
+
 		requestTotal:    counter,
 		requestDuration: histogram,
 		requestInFlight: gauge,
 		responseSize:    responseSizeBuckets,
+
+		customCounters: []CustomCounter{},
 	}
+}
+
+func (c *Client) AddCustomCounter(name, help string, labelNames []string, function func(ctx *fiber.Ctx, counter *prometheus.CounterVec)) *Client {
+	counter := promauto.With(prometheus.DefaultRegisterer).NewCounterVec(
+		prometheus.CounterOpts{
+			Name:        name,
+			Help:        help,
+			ConstLabels: c.constLabels,
+		},
+		labelNames,
+	)
+	c.customCounters = append(c.customCounters, CustomCounter{
+		counter:  counter,
+		function: function,
+	})
+	return c
 }
 
 func (c *Client) Middleware(ctx *fiber.Ctx) error {
@@ -155,6 +183,10 @@ func (c *Client) Middleware(ctx *fiber.Ctx) error {
 	c.requestDuration.WithLabelValues(statusCode, method, path).Observe(elapsed)
 
 	c.responseSize.WithLabelValues(statusCode, method, path).Observe(float64(len(ctx.Response().Body())))
+
+	for _, counter := range c.customCounters {
+		counter.function(ctx, counter.counter)
+	}
 
 	return err
 }
