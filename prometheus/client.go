@@ -14,8 +14,6 @@ import (
 type CustomCounter struct {
 	counter  *prometheus.CounterVec
 	function func(ctx *fiber.Ctx, counter *prometheus.CounterVec, statusCode string)
-	// auto -> include in middleware and auto trigger
-	auto bool
 }
 
 // cant get status code when calling trigger
@@ -142,7 +140,7 @@ func New(service string) *Client {
 	}
 }
 
-func (c *Client) AddCustomCounter(name, help string, labelNames []string, function func(ctx *fiber.Ctx, counter *prometheus.CounterVec, statusCode string)) *Client {
+func (c *Client) AddCustomCounter(name, help string, labelNames []string, function func(ctx *fiber.Ctx, counter *prometheus.CounterVec, statusCode string), useInMiddleware bool) CustomCounter {
 	counter := promauto.With(prometheus.DefaultRegisterer).NewCounterVec(
 		prometheus.CounterOpts{
 			Name:        name,
@@ -151,11 +149,14 @@ func (c *Client) AddCustomCounter(name, help string, labelNames []string, functi
 		},
 		labelNames,
 	)
-	c.customCounters = append(c.customCounters, CustomCounter{
+	cc := CustomCounter{
 		counter:  counter,
 		function: function,
-	})
-	return c
+	}
+	if useInMiddleware {
+		c.customCounters = append(c.customCounters, cc)
+	}
+	return cc
 }
 
 func (c *Client) Middleware(ctx *fiber.Ctx) error {
@@ -192,9 +193,7 @@ func (c *Client) Middleware(ctx *fiber.Ctx) error {
 	c.responseSize.WithLabelValues(statusCode, method, path).Observe(float64(len(ctx.Response().Body())))
 
 	for _, counter := range c.customCounters {
-		if counter.auto {
-			counter.function(ctx, counter.counter, statusCode)
-		}
+		counter.function(ctx, counter.counter, statusCode)
 	}
 
 	return err
