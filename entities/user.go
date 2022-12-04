@@ -35,14 +35,14 @@ type User struct {
 	Email string `bson:"email"`
 	Salt  string `bson:"salt"`
 	Hash  []byte `bson:"hash"`
-	HashVersion string `bson:"hshVersion"`
-	Admin bool   `bson:"admin"
-Role  int    `bson:"role"`
+	HashVersion string `bson:"hashVersion"`
+	Admin bool   `bson:"admin"`
+	Role  int    `bson:"role"`
 
 	LastLoggedIn     time.Time `bson:"last_logged_in"`
-	LastTokenRefresh time.Time `bson:"last_token_rfresh"`
-CreatedAt        time.Time `bson:"created_at"`
+	LastTokenRefresh time.Time `bson:"last_token_refresh"`
+	CreatedAt        time.Time `bson:"created_at"`
 
 	DefaultLocation   Location   `bson:"default_location"`
-	avoriteLocations []Location `bson:"favorite_locations"`
+	FavoriteLocations []Location `bson:"favorite_locations"`
 }
