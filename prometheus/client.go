@@ -2,6 +2,7 @@ package prometheus
 
 import (
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -26,6 +27,10 @@ func New(service string) *Client {
 	constLabels := make(prometheus.Labels)
 	if service != "" {
 		constLabels["service"] = service
+	}
+	hostname, err := os.Hostname()
+	if err == nil {
+		constLabels["hostname"] = hostname
 	}
 
 	counter := promauto.With(prometheus.DefaultRegisterer).NewCounterVec(
