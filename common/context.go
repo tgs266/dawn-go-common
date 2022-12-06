@@ -9,6 +9,8 @@ import (
 	"github.com/tgs266/dawn-go-common/entities"
 	"github.com/tgs266/dawn-go-common/errors"
 	"github.com/tgs266/dawn-go-common/jwt"
+	"github.com/tgs266/dawn-go-common/optional"
+	"gitlab.cs.umd.edu/dawn/dawn-go-common/common"
 )
 
 type DawnCtx struct {
@@ -51,6 +53,15 @@ func (ctx DawnCtx) Done() <-chan struct{} {
 
 func (ctx DawnCtx) BodyParser(out interface{}) error {
 	return ctx.FiberCtx.BodyParser(out)
+}
+
+func ParseBody[T any](ctx common.DawnCtx) optional.Optional[T] {
+	var v T
+	err := ctx.BodyParser(&v)
+	if err != nil {
+		err = errors.NewBadRequest(err)
+	}
+	return optional.New(v, err)
 }
 
 var UNAUTHORIZED_TO_USER_ID = &errors.DawnError{
