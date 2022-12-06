@@ -25,7 +25,7 @@ type RefreshClaims struct {
 	jwt.RegisteredClaims
 }
 
-func IssueJWT(user SharedEntities.User) (string, time.Time, error) {
+func IssueJWT(user *SharedEntities.User) (string, time.Time, error) {
 	var err error
 
 	expTime := viper.GetInt("JWT.expiration")
@@ -49,7 +49,7 @@ func IssueJWT(user SharedEntities.User) (string, time.Time, error) {
 	return token, expiration, nil
 }
 
-func IssueRefreshToken(user SharedEntities.User) (string, time.Time, error) {
+func IssueRefreshToken(user *SharedEntities.User) (string, time.Time, error) {
 	var err error
 
 	expTime := viper.GetInt("JWT.refresh_expiration")
