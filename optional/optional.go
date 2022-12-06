@@ -5,6 +5,13 @@ type Optional[T any] struct {
 	data T
 }
 
+func New[T any](data T, err error) *Optional[T] {
+	return &Optional[T]{
+		data: data,
+		err:  err,
+	}
+}
+
 func (o *Optional[T]) Get() T {
 	return o.data
 }
