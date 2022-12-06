@@ -18,5 +18,5 @@ func DawnErrorHandler(ctx *fiber.Ctx, err error) error {
 
 	err = ctx.Status(outputErr.Code).JSON(message)
 
-	return nil
+	return err
 }

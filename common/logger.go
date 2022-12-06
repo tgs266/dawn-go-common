@@ -284,13 +284,16 @@ func FiberLogger() fiber.Handler {
 		errHandler := c.App().Config().ErrorHandler
 		now := time.Now()
 		c.Locals("start", now)
-		chainErr := c.Next()
+		nextErr := c.Next()
 
 		message := BuildMessage(c)
 
-		if chainErr != nil {
-			dawnError := ErrorConverter(c, chainErr)
+		if nextErr != nil {
+			dawnError := ErrorConverter(c, nextErr)
 			message.Error = dawnError
+			if err := errHandler(c, nextErr); err != nil {
+				_ = c.SendStatus(fiber.StatusInternalServerError)
+			}
 		}
 
 		if set := viper.IsSet("logging.ignore"); set {
@@ -305,12 +308,6 @@ func FiberLogger() fiber.Handler {
 			}
 		} else {
 			LogRequest(message)
-		}
-
-		if chainErr != nil {
-			if err := errHandler(c, chainErr); err != nil {
-				_ = c.SendStatus(fiber.StatusInternalServerError)
-			}
 		}
 
 		return nil
