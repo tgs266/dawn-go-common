@@ -289,7 +289,7 @@ func FiberLogger() fiber.Handler {
 		message := BuildMessage(c)
 
 		if chainErr != nil {
-			dawnError := ErrorHandler(c, chainErr)
+			dawnError := ErrorConverter(c, chainErr)
 			message.Error = dawnError
 		}
 
@@ -317,7 +317,8 @@ func FiberLogger() fiber.Handler {
 	}
 }
 
-func ErrorHandler(ctx *fiber.Ctx, err error) *errors.DawnError {
+// converts any errors to dawn errors
+func ErrorConverter(ctx *fiber.Ctx, err error) *errors.DawnError {
 	var returnError *errors.DawnError
 	if e, ok := err.(*errors.DawnError); ok {
 		returnError = e
