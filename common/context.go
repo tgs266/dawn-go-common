@@ -2,6 +2,7 @@ package common
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
@@ -30,6 +31,22 @@ func BuildCtx(c *fiber.Ctx) DawnCtx {
 	return DawnCtx{
 		FiberCtx: c,
 	}
+}
+
+func (ctx DawnCtx) Deadline() (deadline time.Time, ok bool) {
+	return ctx.FiberCtx.Context().Deadline()
+}
+
+func (ctx DawnCtx) Value(key interface{}) interface{} {
+	return ctx.FiberCtx.Context().Value(key)
+}
+
+func (ctx DawnCtx) Err() error {
+	return ctx.FiberCtx.Context().Err()
+}
+
+func (ctx DawnCtx) Done() <-chan struct{} {
+	return ctx.FiberCtx.Context().Done()
 }
 
 func (ctx DawnCtx) BodyParser(out interface{}) error {
