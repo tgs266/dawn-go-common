@@ -9,11 +9,15 @@ import (
 
 var ConfigName string
 
-func GetConfig(configName string) {
+func GetConfig(configName string, fullPath ...string) {
+	actualFullPath := "./config/"
+	if len(fullPath) != 0 {
+		actualFullPath = fullPath[0]
+	}
 	viper.SetConfigName("local")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
-	viper.AddConfigPath("./config/")
+	viper.AddConfigPath(actualFullPath)
 	viper.AutomaticEnv()
 
 	ConfigName = configName
@@ -27,7 +31,7 @@ func GetConfig(configName string) {
 	viper.SetConfigName(configName)
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
-	viper.AddConfigPath("./config/")
+	viper.AddConfigPath(actualFullPath)
 	viper.AutomaticEnv()
 
 	err = viper.MergeInConfig()
