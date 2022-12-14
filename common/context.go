@@ -68,8 +68,12 @@ var UNAUTHORIZED_TO_USER_ID = &errors.DawnError{
 	Code:        403,
 }
 
-// enfore that a users request is actually for that user
+// enfore that a users request is actually for that user.
+// will return without checking if the config is local
 func (ctx DawnCtx) ValidateToUser(userId string) DawnCtx {
+	if ConfigName == "local" {
+		return ctx
+	}
 	if !(ctx.GetUserId() == userId || ctx.GetRole() >= 1) {
 		panic(errors.NewForbidden(nil).SetDescription("request is trying to access a resource they don't have access to"))
 	}
