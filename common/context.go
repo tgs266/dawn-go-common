@@ -1,7 +1,6 @@
 package common
 
 import (
-	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -69,12 +68,10 @@ var UNAUTHORIZED_TO_USER_ID = &errors.DawnError{
 	Code:        403,
 }
 
+// enfore that a users request is actually for that user
 func (ctx DawnCtx) ValidateToUser(userId string) DawnCtx {
-	if viper.GetBool("app.auth") {
-		admin, _ := strconv.ParseBool(string(ctx.FiberCtx.Request().Header.Peek("admin")))
-		if string(ctx.FiberCtx.Request().Header.Peek("user_id")) != userId && !admin {
-			panic(UNAUTHORIZED_TO_USER_ID)
-		}
+	if !(ctx.GetUserId() == userId || ctx.GetRole() >= 1) {
+		panic(errors.NewForbidden(nil).SetDescription("request is trying to access a resource they don't have access to"))
 	}
 	return ctx
 }
