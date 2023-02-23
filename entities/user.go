@@ -38,6 +38,7 @@ type User struct {
 	HashVersion string `bson:"hashVersion"`
 	Admin bool   `bson:"admin"`
 	Role  int    `bson:"role"`
+	NewsletterOptIn bool `bson:"newsletter_opt_in"`
 
 	LastLoggedIn     time.Time `bson:"last_logged_in"`
 	LastTokenRefresh time.Time `bson:"last_token_refresh"`
