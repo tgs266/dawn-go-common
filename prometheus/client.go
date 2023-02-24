@@ -232,6 +232,7 @@ func version(w http.ResponseWriter, r *http.Request) {
 	if len(version) == 0 {
 		version = "unknown"
 	}
+	w.Header().Set("Content-Type", "application/json")
 
 	json.NewEncoder(w).Encode(map[string]string{
 		"version": version,
