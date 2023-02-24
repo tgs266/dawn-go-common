@@ -7,6 +7,11 @@ import (
 	"github.com/spf13/viper"
 )
 
+func RegisterVersionAtPath(app *fiber.App, path string) {
+	api := app.Group(path)
+	api.Get("version", Version)
+}
+
 func RegisterVersion(app *fiber.App) {
 	api := app.Group(viper.GetString("server.context-path"))
 	api.Get("version", Version)
