@@ -1,6 +1,7 @@
 package prometheus
 
 import (
+	"encoding/json"
 	"net/http"
 	"os"
 	"strconv"
@@ -225,7 +226,20 @@ func (c *Client) Middleware(ctx *fiber.Ctx) error {
 	return err
 }
 
+// hosting on prom endpoint
+func version(w http.ResponseWriter, r *http.Request) {
+	version := os.Getenv("VERSION")
+	if len(version) == 0 {
+		version = "unknown"
+	}
+
+	json.NewEncoder(w).Encode(map[string]string{
+		"version": version,
+	})
+}
+
 func (c *Client) Serve() {
 	http.Handle("/metrics", promhttp.Handler())
+	http.HandleFunc("/version", version)
 	http.ListenAndServe(":9216", nil)
 }
