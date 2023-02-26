@@ -37,15 +37,15 @@ type User struct {
 	Email           string `bson:"email" json:"emil"`
 	Salt            string `bson:"salt" json:"salt"`
 	Hash            []byte `bson:"hash" json:"-"`
-	HashVersion     string `bson:"hashVersion" json:-"`
+	HashVersion     string `bson:"hashVersion" json:"-"`
 	Admin           bool   `bson:"admin" json:"-"`
 	Role            int    `bson:"role" json:"role"`
-	NewsletterOptIn bool   `bson:"newsletter_opt_in" json:"newsletter_opt_in`
+	NewsletterOptIn bool   `bson:"newsletter_opt_in" json:"newsletter_opt_in"`
 
 	LastLoggedIn     time.Time `bson:"last_logged_in" json:"last_loged_in"`
 	LastTokenRefresh time.Time `bson:"last_token_refresh" json:"-"`
 	CreatedAt        time.Time `bson:"created_at" json:"created_at"`
 
-	efaultLocation    Location   `bson:"default_location" json:"default_location"`
+	DefaultLocation    Location   `bson:"default_location" json:"default_location"`
 	FavoriteLocations []Location `bson:"favorite_locations" json:"favorite_locations"`
 }
