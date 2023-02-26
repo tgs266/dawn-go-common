@@ -80,6 +80,18 @@ func (ctx DawnCtx) ValidateToUser(userId string) DawnCtx {
 	return ctx
 }
 
+// enfore that a users request is actually for that user.
+// will return without checking if the config is local
+func (ctx DawnCtx) ValidateToUserOrAdmin(userId string) DawnCtx {
+	if ConfigName == "local" {
+		return ctx
+	}
+	if !(ctx.GetUserId() == userId || ctx.GetRole() >= entities.ROLES["admin"]) {
+		panic(errors.NewForbidden(nil).SetDescription("request is trying to access a resource they don't have access to"))
+	}
+	return ctx
+}
+
 func (ctx DawnCtx) GetJWT() string {
 	return string(ctx.FiberCtx.Request().Header.Peek("Authorization"))
 }
