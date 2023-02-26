@@ -24,7 +24,7 @@ var ROLES = map[string]int{
 	"ADMIN":    2,
 	"SUPER":    3,
 }
-var ROLES_RV = map[int]string{
+var ROLES_REV = map[int]string{
 	0: "USER",
 	1: "REPORTER",
 	2: "ADMIN",
