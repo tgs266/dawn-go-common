@@ -96,6 +96,16 @@ func (ctx DawnCtx) GetUserId() string {
 	return claims.ID
 }
 
+func (ctx DawnCtx) ValidateToReporter() DawnCtx {
+	if viper.GetBool("app.auth") {
+		role := ctx.GetRole()
+		if role < entities.ROLES["REPORTER"] {
+			panic(UNAUTHORIZED_TO_USER_ID)
+		}
+	}
+	return ctx
+}
+
 func (ctx DawnCtx) ValidateToAdmin() DawnCtx {
 	if viper.GetBool("app.auth") {
 		role := ctx.GetRole()
