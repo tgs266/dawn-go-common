@@ -86,7 +86,7 @@ func (ctx DawnCtx) ValidateToUserOrAdmin(userId string) DawnCtx {
 	if ConfigName == "local" {
 		return ctx
 	}
-	if !(ctx.GetUserId() == userId || ctx.GetRole() >= entities.ROLES["admin"]) {
+	if !(ctx.GetUserId() == userId || ctx.GetRole() >= entities.ROLES["ADMIN"]) {
 		panic(errors.NewForbidden(nil).SetDescription("request is trying to access a resource they don't have access to"))
 	}
 	return ctx
